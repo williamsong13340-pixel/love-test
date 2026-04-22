@@ -3,23 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【深度私密】全维伴侣价值与长期关系健康度评估系统</title>
+    <title>亲密关系质量与伴侣特质深度评估量表</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* 整体粉色系背景与基础字体 */
+        /* 样式保持不变，稍微优化底部版权 */
         body { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background-color: #fdf3f6; color: #4a4a4a; margin: 0; padding: 15px; }
-        .container { max-width: 700px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 16px; box-shadow: 0 8px 25px rgba(255, 182, 193, 0.2); border: 1px solid #ffebf0; }
+        .container { max-width: 700px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 16px; box-shadow: 0 8px 25px rgba(255, 182, 193, 0.2); border: 1px solid #ffebf0; position: relative; padding-bottom: 60px; }
         h1 { text-align: center; color: #d81b60; font-size: 22px; margin-bottom: 10px; }
         .subtitle { text-align: center; color: #a07a82; font-size: 13px; margin-bottom: 25px; }
         
-        /* 渐变粉色按钮 */
         .btn { display: block; width: 100%; padding: 16px; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; text-align: center; color: white; box-sizing: border-box; }
         .btn-pink-light { background: linear-gradient(135deg, #ff9a9e, #fecfef); box-shadow: 0 4px 15px rgba(255, 154, 158, 0.4); color: #c2185b; }
         .btn-pink-light:hover { background: linear-gradient(135deg, #fecfef, #ff9a9e); }
         .btn-pink-dark { background: linear-gradient(135deg, #ff758c, #ff7eb3); box-shadow: 0 4px 15px rgba(255, 117, 140, 0.4); margin-top: 30px; }
         .btn-pink-dark:hover { background: linear-gradient(135deg, #ff7eb3, #ff758c); }
+        .btn:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; color: #666;}
         
-        /* 免责声明 */
         .disclaimer-box { background: #fff5f7; border: 1px dashed #ffb6c1; padding: 12px 15px; border-radius: 8px; font-size: 12px; color: #885a63; line-height: 1.6; margin-bottom: 20px; text-align: left; }
         .disclaimer-box strong { color: #d81b60; }
 
@@ -31,7 +30,6 @@
 
         #quiz-screen { display: none; }
         .intro { background: #fff0f4; padding: 15px; border-radius: 8px; margin-bottom: 25px; font-size: 14px; color: #c2185b; border-left: 4px solid #ff758c; }
-        .dimension-title { background: #ffe4e8; color: #d81b60; padding: 12px 15px; border-radius: 6px; margin-top: 30px; font-size: 16px; font-weight: bold; letter-spacing: 1px; border-left: 4px solid #ff758c; }
         .question { margin-top: 20px; padding: 15px; border: 1px solid #ffebf0; border-radius: 8px; background: #fffbfc; }
         .question p { font-weight: bold; margin-top: 0; color: #5d4037; }
         .options label { display: block; padding: 12px; margin: 8px 0; border: 1px solid #f8cdda; border-radius: 6px; cursor: pointer; transition: 0.2s; background: white; color: #4a4a4a; }
@@ -53,63 +51,64 @@
         .chart-wrapper { background: white; border: 1px solid #ffebf0; border-radius: 12px; padding: 15px; margin-bottom: 25px; box-shadow: 0 2px 10px rgba(255, 182, 193, 0.15); }
         .chart-title { text-align: center; font-size: 15px; font-weight: bold; color: #a07a82; margin-bottom: 10px; }
         canvas { max-width: 100%; }
-        .report-content { background: #fffcfd; padding: 20px; border-radius: 12px; border-left: 5px solid #ff758c; font-size: 15px; line-height: 1.8; color: #5d4037; border-right: 1px solid #ffebf0; border-top: 1px solid #ffebf0; border-bottom: 1px solid #ffebf0;}
+        .report-content { background: #fffcfd; padding: 20px; border-radius: 12px; border-left: 5px solid #ff758c; font-size: 15px; line-height: 1.8; color: #5d4037; border: right: 1px solid #ffebf0; border-top: 1px solid #ffebf0; border-bottom: 1px solid #ffebf0;}
         .report-content h3 { color: #d81b60; margin-top: 0; font-size: 18px; }
         
-        /* 致命底线警告框专属样式（保持红色警示） */
         .fatal-warning-box { background: #fff0f0; border: 1px solid #ffcccc; padding: 15px; border-radius: 8px; margin: 15px 0; }
         .fatal-warning-box h4 { color: #c0392b; margin-top: 0; margin-bottom: 10px; font-size: 16px; }
         .fatal-warning-box ul { margin: 0; padding-left: 20px; color: #c0392b; font-weight: bold; }
         .fatal-warning-box li { margin-bottom: 5px; }
+
+        /* 版权声明样式 */
+        .copyright { position: absolute; bottom: 15px; left: 0; width: 100%; text-align: center; font-size: 12px; color: #c4a9af; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>全维伴侣价值深度评估系统</h1>
-    <div class="subtitle">PCVI 内部数据分析引擎 v3.0 | 仅供授权用户使用</div>
+    <h1>亲密关系质量与伴侣特质深度评估</h1>
+    <div class="subtitle">深度心理量表 v3.0 | 仅供付费用户使用</div>
 
     <div id="auth-screen">
-        <!-- 免责声明区 -->
         <div class="disclaimer-box">
             <strong>免责声明：</strong><br>
-            本测试结果基于“社会交换理论”及特定行为算法模型生成，仅供情感复盘与自我觉察参考。感情世界复杂多变，不可完全量化。请结合现实情况理性看待，<strong>本系统不对任何个人情感决策承担连带责任。</strong>测试过程完全私密，不会上传记录您的个人信息。
+            本测试结果基于社会交换理论及心理行为模式生成，仅供情感复盘与自我觉察参考。感情世界复杂多变，请结合现实情况理性看待。测试过程完全私密，不会上传记录您的个人信息。
         </div>
 
         <div class="lock-icon">🔐</div>
         <h2 style="color: #d81b60;">系统已锁定</h2>
         <p class="auth-tips">
-            本测试依托“婚恋市场大数据”与心理学交叉建立。<br>
-            因涉及深度心理分析与现实刺痛，<strong>非授权用户禁止访问。</strong><br><br>
-            请输入您的 24 位专属分析密钥 (Token) 以开启测试：
+            本测试涉及深度心理分析与现实刺痛。<br>
+            <strong>非获取授权用户禁止访问。</strong><br><br>
+            请输入您的专属测试码以开启评估：
         </p>
-        <input type="text" id="authCode" class="auth-input" placeholder="请输入密钥...">
-        <button class="btn btn-pink-light" onclick="verifyToken()">验证密钥并开启测试</button>
+        <input type="text" id="authCode" class="auth-input" placeholder="请输入测试码...">
+        <button id="authBtn" class="btn btn-pink-light" onclick="verifyToken()">验证并开启测试</button>
     </div>
 
     <div id="quiz-screen">
         <div class="intro">
-            <strong>⚠️ 核心警告：</strong>请摒弃“恋爱脑”与“圣母心”，严格根据他在现实生活中的<strong>真实表现</strong>作答，不要根据他的“承诺”或“画饼”来选择。数据无情，请真实面对。
+            <strong>⚠️ 核心要求：</strong>请摒弃“恋爱脑”，严格根据他在现实生活中的<strong>真实表现</strong>作答，不要根据他的“承诺”或“画饼”来选择。数据无情，请真实面对。
         </div>
         <form id="quizForm">
             <div id="questions-container"></div>
-            <button type="button" class="btn btn-pink-dark" onclick="submitQuiz()">生成独家诊断报告</button>
+            <button type="button" class="btn btn-pink-dark" onclick="submitQuiz()">生成专属分析报告</button>
         </form>
     </div>
 
     <div id="loading-screen">
         <div class="spinner"></div>
-        <h2 style="color: #d81b60;">数据运算中...</h2>
-        <div id="loading-text">正在上传答卷数据...</div>
+        <h2 style="color: #d81b60;">报告生成中...</h2>
+        <div id="loading-text">正在整理问卷数据...</div>
         <div class="progress-bar">
             <div class="progress-fill" id="progress-fill"></div>
         </div>
-        <p style="color: #a07a82; font-size: 12px; margin-top: 20px;">系统正在调取全网男性大数据库进行多维交叉比对，请勿关闭页面。</p>
+        <p style="color: #a07a82; font-size: 12px; margin-top: 20px;">系统正在进行多维心理特征比对，请勿关闭页面。</p>
     </div>
 
     <div id="result-screen">
         <div class="result-header">
-            <h2>📊 独家伴侣价值诊断报告</h2>
+            <h2>📊 专属伴侣特质诊断报告</h2>
         </div>
         
         <div class="score-box" id="scoreBox">
@@ -124,190 +123,238 @@
         </div>
 
         <div class="chart-wrapper">
-            <div class="chart-title" id="radarTitle">【个人五维价值雷达透视图】</div>
+            <div class="chart-title" id="radarTitle">【个人五维特质雷达透视图】</div>
             <canvas id="radarChart"></canvas>
         </div>
 
         <div class="report-content" id="reportContent"></div>
     </div>
+
+    <!-- 版权声明 -->
+    <div class="copyright">© 版权所有：测测看（杭州）文化创意工作室</div>
 </div>
 
 <script>
-    const SECRET_TOKEN = "AQ9X7T4PM2V5L8W3R4N6Y1J0";
-
-    const questions = [
-        { dim: "维度一：生存基石（现实与物质底盘）", q: "1. 他目前的收入水平与职业前景如何？", options: [
+    // 题目数据重构：加上了id和dimIndex(维度标识)，方便打乱后还能算对分
+    let rawQuestions = [
+        // 维度0：生存基石
+        { id: 1, dimIndex: 0, q: "他目前的收入水平与职业前景如何？", options: [
             { text: "A. 收入丰厚且稳定，在同龄男性中属于前列（如高薪、有分红/股权等）。", score: 4 },
             { text: "B. 收入中等偏上，工作稳定，有清晰的涨薪或晋升空间。", score: 3 },
             { text: "C. 收入勉强够两人日常开销，但目前缺乏明显的职业规划和上进心。", score: 2 },
             { text: "D. 收入不稳定/待业，且经常好高骛远、眼高手低，天天做发财梦。", score: 1 }
         ]},
-        { dim: "", q: "2. 关于房产、车辆等核心资产，他的实际情况是：", options: [
-            { text: "A. 已有房车且无压力，或已准备好充足首付及还贷能力，且明确愿意为你提供安全感（如加名）。", score: 4 },
+        { id: 2, dimIndex: 0, q: "关于房产、车辆等核心资产，他的实际情况是：", options: [
+            { text: "A. 已有房车且无压力，或已准备好充足首付及还贷能力，愿意提供安全感。", score: 4 },
             { text: "B. 目前还在积累中，但有明确且可行的买房储蓄计划，两人能共同承担。", score: 3 },
-            { text: "C. 没有房车，且认为“租房也挺好”，或者指望掏空他父母/你父母的钱包。", score: 2 },
+            { text: "C. 没有房车，且认为“租房也挺好”，或者指望掏空父母的钱包。", score: 2 },
             { text: "D. 不仅没有任何硬资产，还有非良性负债（如网贷、消费贷等窟窿）。", score: 1 }
         ]},
-        { dim: "", q: "3. 他的日常消费观和财务习惯是怎样的？", options: [
+        { id: 3, dimIndex: 0, q: "他的日常消费观和财务习惯是怎样的？", options: [
             { text: "A. 有清晰的理财规划，量入为出，有储蓄习惯，抗风险能力极强。", score: 4 },
             { text: "B. 偶尔冲动消费，但总体在可控范围内，不会影响正常生活。", score: 3 },
             { text: "C. 典型的“月光族”，赚多少花多少，遇到急事完全拿不出钱。", score: 2 },
-            { text: "D. 极度抠门（对你苛刻），或者极度挥霍（自己透支买鞋/充游戏）。", score: 1 }
+            { text: "D. 极度抠门（对你苛刻），或者极度挥霍（自己透支消费）。", score: 1 }
         ]},
-        { dim: "", q: "4. 他在你身上花钱的态度是：", options: [
-            { text: "A. 非常慷慨，在自己能力范围内总想给你最好的，逢年过节有仪式感。", score: 4 },
+        { id: 4, dimIndex: 0, q: "他在你身上花钱的态度是：", options: [
+            { text: "A. 非常慷慨，在能力范围内总想给你最好的，逢年过节有仪式感。", score: 4 },
             { text: "B. 比较大方，日常开销不计较，大件物品会和你商量着买。", score: 3 },
             { text: "C. 算得很清楚，精明且计较，哪怕几十块钱的外卖也经常暗示要AA。", score: 2 },
-            { text: "D. 经常向你哭穷，甚至理直气壮地要求你为他的高额消费/负债买单（吸血）。", score: 1 }
+            { text: "D. 经常向你哭穷，甚至要求你为他的高额消费/负债买单。", score: 1 }
         ]},
-        { dim: "", q: "5. 面对突发的大额支出（如家人生病、意外事故），他的经济底气是：", options: [
-            { text: "A. 有充足的存款或完善的商业保险，能从容应对，替你遮风挡雨。", score: 4 },
-            { text: "B. 有一定的存款，虽会肉痛，但能硬撑着拿出钱来解决问题。", score: 3 },
+        { id: 5, dimIndex: 0, q: "面对突发的大额支出（如生病、意外），他的经济底气是：", options: [
+            { text: "A. 有充足存款或商业保险，能从容应对，替你遮风挡雨。", score: 4 },
+            { text: "B. 有一定存款，虽会肉痛，但能硬撑着拿出钱来解决问题。", score: 3 },
             { text: "C. 毫无抗风险能力，遇到大事只能四处借钱或双手一摊。", score: 2 },
-            { text: "D. 不仅没钱，还会疯狂抱怨、逃避责任，甚至把经济压力甩锅给你。", score: 1 }
+            { text: "D. 没钱还会抱怨逃避，甚至把经济压力甩锅给你。", score: 1 }
         ]},
-        { dim: "维度二：情感供给（情绪价值与共情力）", q: "6. 当你在工作或生活中受委屈，向他倾诉抱怨时，他的反应是：", options: [
-            { text: "A. 立刻放下手机，认真倾听，先提供极高的情绪价值安抚你，再帮你解决问题。", score: 4 },
-            { text: "B. 会安慰你几句，但直男思维重，很快就会试图给你“讲大道理”。", score: 3 },
-            { text: "C. 显得心不在焉，边打游戏/看手机边敷衍地“嗯、啊”。", score: 2 },
-            { text: "D. 极度不耐烦，甚至反向指责你（“肯定是你自己有问题”、“天天抱怨烦不烦”）。", score: 1 }
+        // 维度1：情感供给
+        { id: 6, dimIndex: 1, q: "当你受委屈向他倾诉抱怨时，他的反应是：", options: [
+            { text: "A. 认真倾听，先安抚情绪，再帮你分析解决问题。", score: 4 },
+            { text: "B. 会安慰几句，但直男思维重，很快就会试图讲大道理。", score: 3 },
+            { text: "C. 心不在焉，边看手机边敷衍地“嗯、啊”。", score: 2 },
+            { text: "D. 极度不耐烦，甚至反向指责你“天天抱怨烦不烦”。", score: 1 }
         ]},
-        { dim: "", q: "7. 在日常相处中，他对你的关注度和用心程度如何？", options: [
-            { text: "A. 细节控，能敏锐察觉你的情绪变化，死死记住你的喜好和随口说过的话。", score: 4 },
-            { text: "B. 总体比较关心，虽然偶尔粗心大意，但你提醒后他会立刻改正并补偿。", score: 3 },
-            { text: "C. 极其自我，永远把自己的感受排在第一位，几乎不主动关心你的精神状态。", score: 2 },
-            { text: "D. 漠不关心，甚至连你的生日、重要的恋爱纪念日都经常“忘记”。", score: 1 }
+        { id: 7, dimIndex: 1, q: "在日常相处中，他对你的关注度和用心程度如何？", options: [
+            { text: "A. 细节控，能敏锐察觉情绪变化，记住你的喜好和随口说过的话。", score: 4 },
+            { text: "B. 总体比较关心，偶尔粗心大意，但提醒后会改正补偿。", score: 3 },
+            { text: "C. 极其自我，永远把自己的感受排在第一位，很少主动关心你。", score: 2 },
+            { text: "D. 漠不关心，连生日、重要的纪念日都经常“忘记”。", score: 1 }
         ]},
-        { dim: "", q: "8. 你们之间的亲密互动（非性接触）频率如何？", options: [
-            { text: "A. 经常有牵手、拥抱、摸头等日常亲昵动作，让你感觉被浓烈地爱着。", score: 4 },
-            { text: "B. 互动正常，虽然时间久了缺乏激情，但总体让人感到踏实舒适。", score: 3 },
-            { text: "C. 几乎没有非生理需求的身体接触，相处模式像极了“合租室友”。", score: 2 },
-            { text: "D. 抗拒日常亲近，且在亲密关系中极度自私，完全不顾及你的体验。", score: 1 }
+        { id: 8, dimIndex: 1, q: "你们之间的亲密互动（非生理需求）频率如何？", options: [
+            { text: "A. 经常有牵手、拥抱等日常亲昵动作，让你感觉被浓烈地爱着。", score: 4 },
+            { text: "B. 互动正常，虽然久了缺乏激情，但总体让人感到踏实舒适。", score: 3 },
+            { text: "C. 几乎没有日常身体接触，相处模式像极了“合租室友”。", score: 2 },
+            { text: "D. 抗拒日常亲近，且在关系中极度自私，不顾及你的体验。", score: 1 }
         ]},
-        { dim: "", q: "9. 当他的朋友或家人在场时，他是如何对待你的？", options: [
-            { text: "A. 大方介绍，极度护短，遇到婆媳分歧时能坚定地挡在你前面。", score: 4 },
-            { text: "B. 表现自然，偶尔可能照顾不到你，但事后会向你解释安抚。", score: 3 },
-            { text: "C. 典型的“窝里横，外面装”，在外人面前对你呼来喝去以彰显他的“大男子主义”。", score: 2 },
-            { text: "D. 故意隐瞒你的正牌女友/妻子身份，或纵容他的亲友对你开恶劣的玩笑。", score: 1 }
+        { id: 9, dimIndex: 1, q: "当他的朋友或家人在场时，他是如何对待你的？", options: [
+            { text: "A. 大方介绍，极度护短，分歧时能坚定地挡在你前面。", score: 4 },
+            { text: "B. 表现自然，偶尔照顾不到你，回事后解释安抚。", score: 3 },
+            { text: "C. “窝里横，外面装”，在外人面前呼来喝去彰显大男子主义。", score: 2 },
+            { text: "D. 故意隐瞒你的身份，或纵容亲友对你开恶劣的玩笑。", score: 1 }
         ]},
-        { dim: "", q: "10. 异地或不能见面时，他的联系与报备习惯是：", options: [
-            { text: "A. 每天主动分享日常，事事有回应，件件有着落，给足你安全感。", score: 4 },
+        { id: 10, dimIndex: 1, q: "异地或不能见面时，他的联系习惯是：", options: [
+            { text: "A. 主动分享日常，事事有回应，给足你安全感。", score: 4 },
             { text: "B. 每天基本会联系，虽然聊天有时比较干巴，但能随时找到人。", score: 3 },
-            { text: "C. 经常失联好几个小时，事后总是以“太忙了”、“没看手机”为借口。", score: 2 },
-            { text: "D. 动不动就玩失踪，甚至断联冷战几天，让你陷入极度的情绪内耗。", score: 1 }
+            { text: "C. 经常失联好几个小时，事后总以“太忙”、“没看手机”为借口。", score: 2 },
+            { text: "D. 动不动玩失踪，甚至断联冷战几天，让你陷入情绪内耗。", score: 1 }
         ]},
-        { dim: "维度三：风控与情绪底盘（争吵与内核稳定性）", q: "11. 发生激烈争吵时，他展现出的底线是：", options: [
-            { text: "A. 内核稳定，能够控制音量，绝不翻旧账，不进行人身攻击，就事论事。", score: 4 },
-            { text: "B. 虽然会生气上头，但在你掉眼泪或表达受伤后会停下来。", score: 3 },
-            { text: "C. 极度擅长“冷暴力”，拒绝沟通，高高在上地等你先低头认错才罢休。", score: 2 },
-            { text: "D. 情绪容易失控，会摔东西、爆粗口辱骂你，甚至有暴力/推搡倾向。", score: 1 }
+        // 维度2：风控与情绪底盘
+        { id: 11, dimIndex: 2, q: "发生激烈争吵时，他展现出的底线是：", options: [
+            { text: "A. 内核稳定，控制音量，绝不翻旧账，不进行人身攻击。", score: 4 },
+            { text: "B. 虽然会上头，但在你掉眼泪或表达受伤后会停下来。", score: 3 },
+            { text: "C. 擅长“冷暴力”，拒绝沟通，高高在上等你先低头。", score: 2 },
+            { text: "D. 情绪容易失控，会摔东西、爆粗口辱骂，甚至有动手倾向。", score: 1 }
         ]},
-        { dim: "", q: "12. 吵架后的“修复期”，他通常怎么做？", options: [
-            { text: "A. 愿意主动找台阶下，不仅真诚道歉，还会复盘问题，提供下次的解决方案。", score: 4 },
-            { text: "B. 会用开玩笑或买杯奶茶的方式糊弄过去，虽然避重就轻，但愿意和好。", score: 3 },
-            { text: "C. 死鸭子嘴硬绝不认错，甚至用“抛开事实不谈，难道你就没错吗”来PUA你。", score: 2 },
-            { text: "D. 极度记仇，把每次吵架都记在小本本上，时不时拿出来刺痛你、翻旧账。", score: 1 }
+        { id: 12, dimIndex: 2, q: "吵架后的“修复期”，他通常怎么做？", options: [
+            { text: "A. 愿意主动找台阶，真诚道歉并复盘，提供下次的解决方案。", score: 4 },
+            { text: "B. 会用开玩笑的方式糊弄过去，虽然避重就轻，但愿意和好。", score: 3 },
+            { text: "C. 死鸭子嘴硬绝不认错，甚至用“抛开事实不谈”来反指责你。", score: 2 },
+            { text: "D. 极度记仇，把每次吵架都记下来，时不时拿出来翻旧账。", score: 1 }
         ]},
-        { dim: "", q: "13. 当他自己遇到重大挫折（失业、投资亏损）时：", options: [
-            { text: "A. 允许自己短暂低落，但很快能调整心态，展现出极强的韧性去寻找出路。", score: 4 },
-            { text: "B. 会像个小孩一样向你倒苦水求安慰，但基本能维持正常的生活节奏。", score: 3 },
-            { text: "C. 彻底崩溃，长时间萎靡不振，每天在家唉声叹气，把负能量全排泄给你。", score: 2 },
-            { text: "D. 将失败全归咎于外界（甚至怪你旺夫运不好），靠酗酒、网游等极度逃避现实。", score: 1 }
+        { id: 13, dimIndex: 2, q: "当他自己遇到重大挫折（失业、亏损）时：", options: [
+            { text: "A. 短暂低落后能迅速调整心态，展现极强韧性去寻找出路。", score: 4 },
+            { text: "B. 会向你倒苦水求安慰，但基本能维持正常的生活节奏。", score: 3 },
+            { text: "C. 彻底崩溃，长时间萎靡不振，把负能量全排泄给你。", score: 2 },
+            { text: "D. 将失败全归咎于外界，靠酗酒、网游等极度逃避现实。", score: 1 }
         ]},
-        { dim: "", q: "14. 他的情绪基准线（日常情绪状态）是怎样的？", options: [
-            { text: "A. 像个小太阳，开朗温和，自带极高的正能量，能瞬间治愈你的不开心。", score: 4 },
-            { text: "B. 大部分时候情绪平稳，偶尔有直男的小脾气，但很好哄。", score: 3 },
-            { text: "C. 高敏感且多疑，经常因为一点小事就陷入阴郁内耗，让你觉得压抑。", score: 2 },
-            { text: "D. 情绪像过山车，喜怒无常，你在他身边总是小心翼翼如履薄冰。", score: 1 }
+        { id: 14, dimIndex: 2, q: "他的日常情绪状态是怎样的？", options: [
+            { text: "A. 开朗温和，自带高正能量，能治愈你的不开心。", score: 4 },
+            { text: "B. 大部分时候平稳，偶尔有小脾气，但很好哄。", score: 3 },
+            { text: "C. 高敏感且多疑，经常因小事陷入内耗，让你觉得压抑。", score: 2 },
+            { text: "D. 情绪像过山车，喜怒无常，你在他身边总是小心翼翼。", score: 1 }
         ]},
-        { dim: "", q: "15. 面对两人意见不合的重要决策时，他倾向于：", options: [
-            { text: "A. 充分尊重你的意见，权衡利弊，努力寻找让双方都舒服的折中方案。", score: 4 },
-            { text: "B. 会努力试图说服你，但如果你的理由充分，他最终愿意妥协让步。", score: 3 },
-            { text: "C. 表面糊弄答应你，背地里却按自己的意思办，毫无契约精神的擅自做主。", score: 2 },
+        { id: 15, dimIndex: 2, q: "面对两人意见不合的重要决策时，他倾向于：", options: [
+            { text: "A. 尊重你的意见，权衡利弊，寻找让双方都舒服的折中方案。", score: 4 },
+            { text: "B. 会努力说服你，但如果你的理由充分，他最终愿意妥协。", score: 3 },
+            { text: "C. 表面答应你，背地里却按自己的意思办，擅自做主。", score: 2 },
             { text: "D. 极端独裁（“我是男人必须听我的”、“不想过就分手”）。", score: 1 }
         ]},
-        { dim: "维度四：成长联盟（未来规划与双向奔赴）", q: "16. 对于你的事业发展或变美的渴望，他的态度是：", options: [
-            { text: "A. 鼎力支持，甚至愿意为你提供资金/人脉，或主动包揽家务让你安心拼搏。", score: 4 },
-            { text: "B. 不干涉，觉得你开心就好，偶尔能提供一些口头鼓励。", score: 3 },
-            { text: "C. 觉得女孩子搞事业没用，经常泼冷水打压你的积极性（“弄这些有什么用”）。", score: 2 },
-            { text: "D. 强烈要求你放弃工作回归家庭当免费保姆，极度嫉妒你比他优秀/赚得多。", score: 1 }
+        // 维度3：成长联盟
+        { id: 16, dimIndex: 3, q: "对于你的事业发展或变美的渴望，他的态度是：", options: [
+            { text: "A. 鼎力支持，甚至愿意提供资金/人脉，或主动包揽家务。", score: 4 },
+            { text: "B. 不干涉，觉得你开心就好，偶尔能提供口头鼓励。", score: 3 },
+            { text: "C. 觉得搞事业没用，经常泼冷水打压你的积极性。", score: 2 },
+            { text: "D. 要求你放弃工作当全职保姆，嫉妒你比他优秀。", score: 1 }
         ]},
-        { dim: "", q: "17. 日常家务（做饭、打扫等）的分配模式是：", options: [
-            { text: "A. 眼里有活，主动承担一半甚至更多，认为家务是共同生活的本分。", score: 4 },
-            { text: "B. 拨一下动一下，你分配任务他会去做，但缺乏主动意识。", score: 3 },
-            { text: "C. 偶尔洗一次碗就要发朋友圈炫耀，平时基本当甩手掌柜（丧偶式生活）。", score: 2 },
-            { text: "D. 封建残余，理直气壮认为“做家务就是女人的事”，心安理得享受你的伺候。", score: 1 }
+        { id: 17, dimIndex: 3, q: "日常家务的分配模式是：", options: [
+            { text: "A. 眼里有活，主动承担一半甚至更多，认为是共同本分。", score: 4 },
+            { text: "B. 拨一下动一下，你分配任务他会做，但缺乏主动意识。", score: 3 },
+            { text: "C. 偶尔做一次就要炫耀，平时基本当甩手掌柜（丧偶式）。", score: 2 },
+            { text: "D. 理直气壮认为“家务就是女人的事”，心安理得享受伺候。", score: 1 }
         ]},
-        { dim: "", q: "18. 你们对未来生活的蓝图匹配度如何？", options: [
-            { text: "A. 核心价值观高度一致，且他已经把你规划进他的未来，并在切实努力。", score: 4 },
-            { text: "B. 大方向一致，虽然在某些细节上还在磨合，但不构成根本矛盾。", score: 3 },
-            { text: "C. 极度回避未来话题，每次你提起结婚/买房，他都用“顺其自然”敷衍拖延。", score: 2 },
-            { text: "D. 核心观念存在不可调和的死局（如你想丁克他坚决要生），且互相不愿让步。", score: 1 }
+        { id: 18, dimIndex: 3, q: "你们对未来生活的蓝图匹配度如何？", options: [
+            { text: "A. 核心价值观一致，且他已把你规划进未来，在切实努力。", score: 4 },
+            { text: "B. 大方向一致，某些细节在磨合，但不构成根本矛盾。", score: 3 },
+            { text: "C. 回避未来话题，一提起结婚/买房就用“顺其自然”敷衍拖延。", score: 2 },
+            { text: "D. 观念存在不可调和的死局（如你要丁克他要生），且不愿让步。", score: 1 }
         ]},
-        { dim: "", q: "19. 和他在一起之后，你对自己和生活的整体感觉是：", options: [
-            { text: "A. 变得更自信、更漂亮，气色绝佳，感觉世界充满光亮（被好男人滋养的脸）。", score: 4 },
+        { id: 19, dimIndex: 3, q: "和他在一起之后，你对自己和生活的整体感觉是：", options: [
+            { text: "A. 变得更自信漂亮，感觉世界充满光亮（被滋养的脸）。", score: 4 },
             { text: "B. 没什么太大起伏，但生活多了一份安稳的陪伴。", score: 3 },
-            { text: "C. 经常陷入自我怀疑和容貌焦虑，感觉精力被长期抽干，越来越憔悴。", score: 2 },
-            { text: "D. 完全失去了自我，身材/容貌/精神状态肉眼可见地断崖式衰老。", score: 1 }
+            { text: "C. 经常陷入自我怀疑焦虑，感觉精力被抽干，越来越憔悴。", score: 2 },
+            { text: "D. 完全失去了自我，身材容貌精神状态断崖式衰老。", score: 1 }
         ]},
-        { dim: "", q: "20. 当你面临提升自己的机会（如进修、健身、培养新爱好）时：", options: [
-            { text: "A. 他会督促并陪伴你一起进步，两人形成相互托举的良性竞争。", score: 4 },
-            { text: "B. 他自己不参与，但不反对，愿意给你留出独处的个人时间。", score: 3 },
+        { id: 20, dimIndex: 3, q: "当你面临提升自己的机会（如进修、健身）时：", options: [
+            { text: "A. 他会督促并陪伴你一起进步，形成相互托举的良性循环。", score: 4 },
+            { text: "B. 他不参与但不反对，愿意给你留出独处时间。", score: 3 },
             { text: "C. 他觉得你在瞎折腾，经常阴阳怪气地冷嘲热讽。", score: 2 },
-            { text: "D. 充满变态的控制欲，不准你社交，试图斩断你的圈子将你彻底孤立掌控。", score: 1 }
+            { text: "D. 充满控制欲，不准你社交，试图斩断圈子将你孤立。", score: 1 }
         ]},
-        { dim: "维度五：底线与品性（人品、忠诚与原生家庭）", q: "21. 他在与异性相处时的“边界感”如何？", options: [
-            { text: "A. 男德班班长，主动与异性保持安全距离，果断拒绝一切暧昧并向你报备。", score: 4 },
-            { text: "B. 有基本的分寸，不会单独与异性约会，手机里没有暧昧聊骚信息。", score: 3 },
-            { text: "C. 经常认一些“好妹妹/红颜知己”，你一吃醋他就指责你“无理取闹、神经病”。", score: 2 },
-            { text: "D. 实锤过劈腿、出轨、聊骚、PC，或手机里常备探探/Tinder等猎艳软件。", score: 1 }
+        // 维度4：底线与品性
+        { id: 21, dimIndex: 4, isVeto: true, vetoReason: "毫无异性边界感 (存在劈腿/出轨/聊骚前科)", q: "他在与异性相处时的“边界感”如何？", options: [
+            { text: "A. 主动保持安全距离，果断拒绝一切暧昧并向你报备。", score: 4 },
+            { text: "B. 有基本的分寸，不会单独约会，没有暧昧信息。", score: 3 },
+            { text: "C. 经常认“好妹妹/红颜”，你吃醋他就指责你“无理取闹”。", score: 2 },
+            { text: "D. 实锤过劈腿出轨聊骚，或手机常备猎艳交友软件。", score: 1 }
         ]},
-        { dim: "", q: "22. 关于不良嗜好，他的实际情况是：", options: [
-            { text: "A. 极其自律，作息健康，绝对不沾染任何违法或破坏底线的恶习。", score: 4 },
-            { text: "B. 偶尔抽烟喝酒应酬，但在你生病或备孕等关键时期能狠心控制。", score: 3 },
-            { text: "C. 沉迷于极度消耗时间/金钱的爱好（如重度氪金网游、没日没夜打麻将）。", score: 2 },
-            { text: "D. 沾染黄、赌、毒，或有屡教不改的家暴前科（哪怕只有一次）。", score: 1 }
+        { id: 22, dimIndex: 4, isVeto: true, vetoReason: "触碰道德红线 (沾染不良嗜好/或有家暴倾向)", q: "关于不良嗜好，他的实际情况是：", options: [
+            { text: "A. 极其自律，绝对不沾染任何破坏底线的恶习。", score: 4 },
+            { text: "B. 偶尔抽烟喝酒应酬，在关键时期能狠心控制。", score: 3 },
+            { text: "C. 沉迷于极度消耗时间/金钱的爱好（如重度网游、打牌）。", score: 2 },
+            { text: "D. 沾染黄赌毒，或有屡教不改的家暴前科（哪怕一次）。", score: 1 }
         ]},
-        { dim: "", q: "23. 在遇到需要承担责任的事情时，他的习惯性反应是：", options: [
-            { text: "A. 真男人，敢作敢当，错了就认，第一时间想办法弥补损失保护你。", score: 4 },
-            { text: "B. 虽第一时间会本能退缩找借口，但在你的要求下还是会硬着头皮承担。", score: 3 },
-            { text: "C. 满嘴跑火车（画饼大师），承诺的事情从不兑现，毫无契约精神。", score: 2 },
-            { text: "D. 习惯性撒谎，甩锅给别人，甚至在关键时刻毫不犹豫地推你出去挡枪。", score: 1 }
+        { id: 23, dimIndex: 4, isVeto: true, vetoReason: "极度缺乏责任感 (习惯性撒谎/遇事退缩甩锅)", q: "在遇到需要承担责任的事情时，他的习惯性反应是：", options: [
+            { text: "A. 敢作敢当，第一时间想办法弥补损失保护你。", score: 4 },
+            { text: "B. 虽本能退缩，但在要求下还是会硬着头皮承担。", score: 3 },
+            { text: "C. 满嘴跑火车，承诺的事情从不兑现，毫无契约精神。", score: 2 },
+            { text: "D. 习惯性撒谎甩锅，关键时刻毫不犹豫推你出去挡枪。", score: 1 }
         ]},
-        { dim: "", q: "24. 他与原生家庭（尤其是他母亲）的关系和边界是：", options: [
-            { text: "A. 经济与人格完全独立，拎得清，婚后明确表态“你们的小家庭”利益排第一。", score: 4 },
-            { text: "B. 婆婆偶尔干涉，但他能在发生冲突的关键时刻护着你，不让你受委屈。", score: 3 },
-            { text: "C. 典型的“纯种妈宝男”，凡事听他妈的，他妈指责你时他只会在旁边装死。", score: 2 },
-            { text: "D. 他家是无底洞（如重男轻女、长期要钱填坑），且他甘之如饴地被吸血并拉你下水。", score: 1 }
+        { id: 24, dimIndex: 4, isVeto: true, vetoReason: "原生家庭严重拖累 (无底洞/极端妈宝男)", q: "他与原生家庭（尤其是他母亲）的关系和边界是：", options: [
+            { text: "A. 经济人格独立，拎得清，婚后小家庭利益排第一。", score: 4 },
+            { text: "B. 长辈偶尔干涉，但在关键时刻能护着你。", score: 3 },
+            { text: "C. “妈宝男”，凡事听家里的，长辈指责你时他装死。", score: 2 },
+            { text: "D. 原生家庭是无底洞，且他甘之如饴被吸血并拉你下水。", score: 1 }
         ]},
-        { dim: "", q: "25. 观察他对待弱者（如餐厅服务员、外卖小哥、流浪动物）的态度：", options: [
-            { text: "A. 骨子里的善良，彬彬有礼，懂得换位思考，对底层劳动者充满尊重。", score: 4 },
-            { text: "B. 态度平淡，正常对待，不惹事也不怎么散发善心。", score: 3 },
-            { text: "C. 极度精致利己，对有用的人谄媚拍马屁，对无用的人极其冷漠算计。", score: 2 },
-            { text: "D. 充满狂妄的优越感，经常对底层服务人员大呼小叫，或有虐待小动物的变态倾向。", score: 1 }
+        { id: 25, dimIndex: 4, isVeto: true, vetoReason: "底层品性恶劣 (极度自私/有虐待弱者倾向)", q: "观察他对待弱者（如服务员、外卖员、流浪动物）的态度：", options: [
+            { text: "A. 骨子里的善良，懂得换位思考，充满尊重。", score: 4 },
+            { text: "B. 态度平淡，正常对待，不惹事。", score: 3 },
+            { text: "C. 精致利己，对有用的人谄媚，对无用的人冷漠算计。", score: 2 },
+            { text: "D. 狂妄优越感，对服务人员大呼小叫，或有虐待动物倾向。", score: 1 }
         ]}
     ];
 
-    function verifyToken() {
-        let inputCode = document.getElementById('authCode').value.trim().toUpperCase().replace(/[- ]/g, ""); 
-        if (inputCode !== SECRET_TOKEN) {
-            alert("❌ 密钥无效或已过期！请检查输入是否正确。");
+    let shuffledQuestions = [];
+
+    // 洗牌算法：用于打乱数组顺序
+    function shuffleArray(array) {
+        let newArray = [...array];
+        for (let i = newArray.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+        }
+        return newArray;
+    }
+
+    // 与后端进行验证 (Vercel API)
+    async function verifyToken() {
+        const inputCode = document.getElementById('authCode').value.trim();
+        if (!inputCode) {
+            alert("请输入测试码！");
             return;
         }
-        document.getElementById('auth-screen').style.display = 'none';
-        document.getElementById('quiz-screen').style.display = 'block';
-        renderQuestions();
+
+        const btn = document.getElementById('authBtn');
+        btn.innerText = "验证中...";
+        btn.disabled = true;
+
+        try {
+            // 调用 Vercel 的后端函数
+            const response = await fetch('/api/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: inputCode })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('quiz-screen').style.display = 'block';
+                renderQuestions();
+            } else {
+                alert("❌ 测试码无效或已过期！");
+                btn.innerText = "验证并开启测试";
+                btn.disabled = false;
+            }
+        } catch (error) {
+            alert("网络请求失败，请稍后再试。");
+            btn.innerText = "验证并开启测试";
+            btn.disabled = false;
+        }
     }
 
     function renderQuestions() {
         const container = document.getElementById('questions-container');
         container.innerHTML = '';
-        questions.forEach((item, index) => {
-            let html = '';
-            if (item.dim) { html += `<div class="dimension-title">${item.dim}</div>`; }
-            html += `<div class="question"><p>${item.q}</p><div class="options">`;
+        
+        // 打乱题目顺序
+        shuffledQuestions = shuffleArray(rawQuestions);
+
+        shuffledQuestions.forEach((item, index) => {
+            let html = `<div class="question"><p>第 ${index + 1} 题：${item.q}</p><div class="options">`;
             item.options.forEach((opt) => {
-                html += `<label><input type="radio" name="q${index+1}" value="${opt.score}"> ${opt.text}</label>`;
+                html += `<label><input type="radio" name="q_${item.id}" value="${opt.score}"> ${opt.text}</label>`;
             });
             html += `</div></div>`;
             container.innerHTML += html;
@@ -317,7 +364,7 @@
     let g_totalScore = 0;
     let g_veto = false;
     let g_dimScores = [0, 0, 0, 0, 0]; 
-    let g_vetoReasons = []; // 用来记录具体触碰了哪几条底线
+    let g_vetoReasons = []; 
 
     function submitQuiz() {
         g_totalScore = 0;
@@ -326,25 +373,22 @@
         g_vetoReasons = [];
         let answeredCount = 0;
 
-        for (let i = 1; i <= 25; i++) {
-            const radios = document.getElementsByName('q' + i);
+        // 遍历打乱后的题目去算分
+        for (let i = 0; i < shuffledQuestions.length; i++) {
+            let item = shuffledQuestions[i];
+            const radios = document.getElementsByName('q_' + item.id);
             let answered = false;
             for (let radio of radios) {
                 if (radio.checked) {
                     let score = parseInt(radio.value);
                     g_totalScore += score;
-                    let dimIndex = Math.floor((i - 1) / 5);
-                    g_dimScores[dimIndex] += score;
+                    g_dimScores[item.dimIndex] += score;
                     answered = true;
                     
-                    // 记录具体的一票否决原因
-                    if (i >= 21 && i <= 25 && score === 1) {
+                    // 记录一票否决
+                    if (item.isVeto && score === 1) {
                         g_veto = true;
-                        if(i === 21) g_vetoReasons.push("毫无异性边界感 (存在劈腿/出轨/聊骚/PC前科)");
-                        if(i === 22) g_vetoReasons.push("触碰法律道德红线 (沾染黄赌毒/或有家暴倾向)");
-                        if(i === 23) g_vetoReasons.push("极度缺乏责任感 (习惯性撒谎/遇事退缩甩锅)");
-                        if(i === 24) g_vetoReasons.push("原生家庭严重拖累 (无底洞吸血/极端妈宝男)");
-                        if(i === 25) g_vetoReasons.push("底层品性恶劣 (极度自私/有虐待弱者倾向)");
+                        g_vetoReasons.push(item.vetoReason);
                     }
                     break;
                 }
@@ -353,7 +397,7 @@
         }
 
         if (answeredCount < 25) {
-            alert("亲爱的，请回答完所有 25 道测试题后再生成报告哦！");
+            alert("请回答完所有 25 道测试题后再生成报告哦！");
             return;
         }
 
@@ -367,12 +411,12 @@
         const fill = document.getElementById('progress-fill');
         const text = document.getElementById('loading-text');
         const stages = [
-            "正在计算问卷数据...",
-            "正在进行多维情感交叉算法分析...",
-            "提取伴侣底层逻辑特征模型...",
-            "正在匹配全网男性婚恋大数据库...",
-            "正在计算击败全国男性百分比...",
-            "生成最终独家私密诊断报告..."
+            "正在汇总问卷数据...",
+            "进行行为学模式比对...",
+            "提取伴侣底层特征模型...",
+            "正在比对大数据库...",
+            "正在计算综合百分比...",
+            "生成最终专属分析报告..."
         ];
         
         let progress = 0;
@@ -420,29 +464,24 @@
         if (g_veto) {
             scoreBox.style.borderColor = "#c0392b";
             scoreBox.style.backgroundColor = "#fff5f5";
-            
             scoreValue.innerHTML = "<span style='font-size:32px;'>🚫 底线崩塌·强制清零</span>";
             scoreValue.style.color = "#c0392b";
-            
             pctText.innerText = `⚠️ 极度危险：实际有效价值跌破底盘 (不足 1%)`;
             pctText.style.color = "#c0392b";
-
-            // 雷达图标题变红警告
             radarTitle.innerText = "【⚠️ 触发致命红线：五维矩阵已崩塌清零】";
             radarTitle.style.color = "#c0392b";
-
             chartScore = 25; 
         } else {
             scoreValue.innerText = g_totalScore;
             scoreValue.style.color = "#ff758c";
-            radarTitle.innerText = "【个人五维价值雷达透视图】";
+            radarTitle.innerText = "【个人五维特质雷达透视图】";
             radarTitle.style.color = "#a07a82";
 
             if (g_totalScore >= 75) {
-                pctText.innerText = `🔥 恭喜！他的综合价值击败了全国 ${percentile}% 的男性`;
-                pctText.style.color = "#d81b60"; // 优质高分使用明媚的玫瑰色
+                pctText.innerText = `🔥 综合评价超越了 ${percentile}% 的样本组`;
+                pctText.style.color = "#d81b60"; 
             } else {
-                pctText.innerText = `综合评价击败了全国 ${percentile}% 的男性`;
+                pctText.innerText = `综合评价超越了 ${percentile}% 的样本组`;
                 pctText.style.color = "#c2185b";
             }
         }
@@ -455,28 +494,24 @@
     function renderReportText() {
         const report = document.getElementById('reportContent');
         if (g_veto) {
-            // 将具体原因拼接成列表
             let reasonsHtml = g_vetoReasons.map(reason => `<li>${reason}</li>`).join('');
-            
             report.innerHTML = `
-                <h3 style="color:#c0392b;">🚨 【高危警报】虚假的高分伪装 / 劣质资产</h3>
-                <p><strong>⚠️ 一票否决清零机制：</strong>就算他前面表现得再好（哪怕特别有钱、极懂浪漫），但系统检测到他在【人品与底线】维度中触碰了不可饶恕的红线。在这个底层逻辑模型里，**底线=0，则一切皆为0**。这高分不过是裹着糖衣的毒药。</p>
-                
+                <h3 style="color:#c0392b;">🚨 【高危警报】虚假的高分伪装 / 高风险对象</h3>
+                <p><strong>⚠️ 一票否决机制触发：</strong>无论他在其他方面表现得多好，系统检测到他在【人品与底线】维度中触碰了不可饶恕的红线。在心理学评估逻辑里，**底线=0，则一切皆为0**。</p>
                 <div class="fatal-warning-box">
                     <h4>⛔ 系统已锁定以下致命缺陷：</h4>
                     <ul>${reasonsHtml}</ul>
                 </div>
-
-                <p><strong>深度剖析：</strong>清醒一点！这不是爱情，这是在精准扶贫甚至渡劫！他极具迷惑性，但本身就是你生活中最大的定时炸弹。继续耗下去，你的钱财、青春甚至半条命都会被吸干。</p>
-                <p><strong>【高维破局建议】：</strong><br>1. 丢掉幻想：屎壳郎改变不了吃屎的本性，你救不了烂人。<br>2. 及时止损：沉没成本不是成本，尽早剥离财务和情感纠葛。<br>3. 物理隔绝：准备好安全撤退路线，立马跑，不要回头！</p>`;
+                <p><strong>深度剖析：</strong>这种特质极具迷惑性，但本身就是生活中的高危风险。继续维持关系，个人的情绪、财产甚至安全都可能受到严重剥削。</p>
+                <p><strong>【核心建议】：</strong><br>1. 丢掉幻想：核心品性极难改变。<br>2. 及时止损：尽早剥离财务和情感纠葛。<br>3. 物理隔绝：准备好安全边界，保护自己。</p>`;
         } else if (g_totalScore >= 90) {
-            report.innerHTML = "<h3>👑 【极品金字塔尖】高质量人生合伙人</h3><p><strong>深度剖析：</strong>天呐姐妹！你简直挖到了婚恋市场上的极品“钻石男”。他的物质底盘极其稳固，情绪价值直接拉满。他心智成熟、内核稳定，跟你不仅是情侣，更是能背靠背打怪升级的顶级战友。这种级别的男性，属于市场上极度稀缺的资源。</p><p><strong>【高维破局建议】：</strong><br>1. 疯狂提供情绪反馈：对这种优质伴侣，不要吝啬你的夸奖，“男人的好是夸出来的”。<br>2. 警惕“恃宠而骄”：双向奔赴才能锁死长久，不要把他当全能提款机。<br>3. 尽早绑定核心利益：千万别犹豫，可以直接进入人生下一阶段（结婚/生子）。</p>";
+            report.innerHTML = "<h3>👑 【极度稀缺】高质量人生合伙人</h3><p><strong>深度剖析：</strong>你的伴侣在此次测试中表现极为优异。他的现实底盘稳固，情绪价值拉满。他心智成熟、内核稳定，不仅是亲密恋人，更是能背靠背应对生活的优质战友。这种特质在样本库中属于极度稀缺资源。</p><p><strong>【核心建议】：</strong><br>1. 正向反馈：对这种优质伴侣，不要吝啬肯定与夸奖。<br>2. 警惕过度索取：双向奔赴才能长久，避免将其视为单向的情绪/物质提供者。<br>3. 长期规划：建议尽早进行更深度的未来利益绑定。</p>";
         } else if (g_totalScore >= 75) {
-            report.innerHTML = "<h3>🌟 【优质适配潜力股】靠谱的经济适用男</h3><p><strong>深度剖析：</strong>很不错了！他是一个非常值得托付的优秀对象。虽然可能在某些细节（比如没那么懂浪漫，偶尔有点直男脾气）上不够完美，但他的底层逻辑极其清晰，人品底线完全靠得住。别被网上的“完美霸总”洗脑了，现实中遇到这种踏实肯干、愿意为你付出的男人，已经赢了大部分人。</p><p><strong>【高维破局建议】：</strong><br>1. 聚焦短板调教：看雷达图中偏低的维度，趁他心情好的时候温柔地“立规矩”。<br>2. 利益捆绑：通过共同买房、强制储蓄等行为，进一步加固你们的现实基石。<br>3. 拥抱真实：接纳他是个有血有肉的普通人，好男人是需要女人慢慢调教出来的。</p>";
+            report.innerHTML = "<h3>🌟 【优质适配】靠谱的长期关系对象</h3><p><strong>深度剖析：</strong>测试结果十分优良。他是一个非常值得托付的对象。虽然在某些细节上可能不够完美，但底层逻辑清晰，人品底线靠得住。现实中遇到这种踏实、愿意付出的伴侣，已经具备了建立幸福长久关系的坚实基础。</p><p><strong>【核心建议】：</strong><br>1. 聚焦短板沟通：参考雷达图偏低的维度，在氛围融洽时温和沟通期望。<br>2. 巩固现实基石：通过共同的目标规划，进一步加固现实维度的连接。<br>3. 拥抱真实：接纳对方的不完美，好关系是双方共同磨合出来的。</p>";
         } else if (g_totalScore >= 60) {
-            report.innerHTML = "<h3>⚠️ 【风险鸡肋期】内耗重灾区 / 随时准备撤离</h3><p><strong>深度剖析：</strong>这段感情目前处于“食之无味，弃之可惜”的鸡肋状态。他在某个核心维度出现了致命短板。在这段关系里，你感觉到自己的能量正在被抽干。他或许不是十恶不赦的坏人，但绝对目前还撑不起一个家的重量。</p><p><strong>【高维破局建议】：</strong><br>1. 停止自我感动式的付出：收回你 80% 的精力，把钱和心思花在自己搞钱变美上。<br>2. 设立强硬底线：明确告诉他哪里让你无法忍受，观察他是敷衍还是真改。<br>3. 积累离开的筹码：随时做好“他烂泥扶不上墙你就换人”的准备，不依附任何人。</p>";
+            report.innerHTML = "<h3>⚠️ 【风险预警】内耗重灾区 / 需重新评估关系</h3><p><strong>深度剖析：</strong>这段关系目前处于较高的内耗状态。他在某个核心维度出现了明显短板。在这段关系里，你可能经常感觉能量被过度消耗。他或许没有突破底线，但目前暂未展现出支撑长期稳定关系的成熟度。</p><p><strong>【核心建议】：</strong><br>1. 停止过度付出：收回部分精力，将注意力转移到自我提升上。<br>2. 设立清晰边界：明确表达你的底线和不可接受的行为，观察其行动而非口头承诺。<br>3. 保持独立：随时保持财务和精神的独立，不产生过度依赖。</p>";
         } else {
-            report.innerHTML = "<h3>💀 【高耗损劣质资产】纯粹的消耗型关系</h3><p><strong>深度剖析：</strong>姐妹，你到底在图他什么？图他穷？图他脾气大？图他让你内耗流眼泪？他在经济、情绪、人品上全面溃败！他的雷达图瘪得像一张纸。这段关系的存在，对你来说是一种降维打击，正在疯狂吸食你的能量和青春。</p><p><strong>【高维破局建议】：</strong><br>1. 打消圣母情节：你不是救世主，感动不了一个装睡的自私鬼。<br>2. 理清账目：立刻停止一切经济倒贴行为，不要再为他花一分钱。<br>3. 找闺蜜骂醒自己：别被 PUA 了，你值得更好的人，赶紧跑！</p>";
+            report.innerHTML = "<h3>💀 【高耗损】纯粹的消耗型关系</h3><p><strong>深度剖析：</strong>测试结果处于危险区域。他在经济、情绪、人品等多个维度均呈现显著低分。这段关系的存在，对你而言是一种严重的能量消耗，正在透支你的精力与生活质量。</p><p><strong>【核心建议】：</strong><br>1. 打消拯救情结：不要试图去改变一个极度自我或拒绝成长的人。<br>2. 停止物质倒贴：立刻停止单方面的经济与情绪付出。<br>3. 寻求外部支持：与信任的朋友或专业人士沟通，打破当前的依赖怪圈。</p>";
         }
     }
 
@@ -484,19 +519,14 @@
     function drawBellCurve(userScore, percentile) {
         const ctx = document.getElementById('bellChart').getContext('2d');
         if (bChart) bChart.destroy();
-
-        let labels = [];
-        let data = [];
-        let pointColors = [];
-        let pointRadii = [];
+        let labels = [], data = [], pointColors = [], pointRadii = [];
 
         for(let i = 25; i <= 100; i++) {
             labels.push(i);
             let y = Math.exp(-Math.pow(i - 65, 2) / (2 * Math.pow(12, 2))) * 100; 
             data.push(y);
-            
             if(i === userScore) {
-                pointColors.push('#d81b60'); // 标记点用深粉红
+                pointColors.push('#d81b60');
                 pointRadii.push(6);
             } else {
                 pointColors.push('rgba(0,0,0,0)');
@@ -509,13 +539,11 @@
             data: {
                 labels: labels,
                 datasets: [{
-                    label: '全网男性数据分布曲线',
+                    label: '数据分布曲线',
                     data: data,
-                    borderColor: '#ff758c', // 折线粉色
-                    backgroundColor: 'rgba(255, 117, 140, 0.15)', // 填充粉色
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4, 
+                    borderColor: '#ff758c', 
+                    backgroundColor: 'rgba(255, 117, 140, 0.15)',
+                    borderWidth: 2, fill: true, tension: 0.4, 
                     pointBackgroundColor: pointColors,
                     pointBorderColor: pointColors,
                     pointRadius: pointRadii,
@@ -526,7 +554,7 @@
                 responsive: true,
                 scales: {
                     x: { 
-                        title: { display: true, text: '综合测评有效得分 (25 - 100)' },
+                        title: { display: true, text: '综合测评得分' },
                         ticks: { callback: function(val, index) { return index % 10 === 0 ? labels[index] : ''; } } 
                     },
                     y: { display: false } 
@@ -538,9 +566,9 @@
                             label: function(context) {
                                 if(context.parsed.x + 25 === userScore) {
                                     if(userScore === 25 && g_veto) return `🚫 被系统强制打回谷底 (不及1%)`;
-                                    return `他的得分: ${userScore}分 (超越 ${percentile}% 男性)`;
+                                    return `得分: ${userScore}分 (超越 ${percentile}% )`;
                                 }
-                                return '全网数据趋势';
+                                return '样本数据趋势';
                             }
                         }
                     }
@@ -554,19 +582,16 @@
         const ctx = document.getElementById('radarChart').getContext('2d');
         if (rChart) rChart.destroy();
 
-        // 核心修改区：如果触发一票否决，雷达图的数据全部变成 0！强制坍塌成一个点！
         let finalRadarData = g_veto ? [0, 0, 0, 0, 0] : g_dimScores;
-
-        // 正常状态粉色系，触发底线则为刺眼的警告红
         let chartColor = g_veto ? 'rgba(192, 57, 43, 0.3)' : 'rgba(255, 117, 140, 0.3)';
         let borderColor = g_veto ? 'rgba(192, 57, 43, 1)' : 'rgba(255, 117, 140, 1)';
 
         rChart = new Chart(ctx, {
             type: 'radar',
             data: {
-                labels: ['生存底盘(物质)', '情感供给(情绪)', '内核底盘(稳定)', '成长联盟(未来)', '底线与品性'],
+                labels: ['生存底盘', '情感供给', '情绪稳定', '成长联盟', '底线品性'],
                 datasets: [{
-                    label: '男性个体五维价值解析',
+                    label: '五维特质解析',
                     data: finalRadarData,
                     backgroundColor: chartColor,
                     borderColor: borderColor,
@@ -588,7 +613,7 @@
                         grid: { color: 'rgba(0, 0, 0, 0.05)' },
                         pointLabels: {
                             font: { size: 12, family: "'PingFang SC', sans-serif", weight: 'bold' },
-                            color: g_veto ? '#c0392b' : '#5d4037' // 如果触发底线，连外圈文字都变红警告
+                            color: g_veto ? '#c0392b' : '#5d4037' 
                         },
                         ticks: { stepSize: 5, display: false }
                     }
