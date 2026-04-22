@@ -106,7 +106,7 @@
         </div>
         <form id="quizForm">
             <div id="questions-container"></div>
-            <button type="button" class="btn btn-pink-dark" onclick="submitQuiz()">生成专属分析报告</button>
+            <button type="button" id="submitBtn" class="btn btn-pink-dark" onclick="submitQuiz()">生成专属分析报告</button>
         </form>
     </div>
 
@@ -154,8 +154,8 @@
 </div>
 
 <script>
-    // ================= 监听回车键事件 =================
-    window.onload = function() {
+    // 防御性：将 onload 改为 DOMContentLoaded，防止与其他可能加载的资源冲突
+    document.addEventListener('DOMContentLoaded', function() {
         const authInput = document.getElementById('authCode');
         if (authInput) {
             authInput.addEventListener('keydown', function(event) {
@@ -166,7 +166,7 @@
                 }
             });
         }
-    };
+    });
 
     // ================= 题目数据 =================
     const rawQuestions = [
@@ -341,7 +341,8 @@
 
     // 后端接口验证
     async function verifyToken() {
-        const inputCode = document.getElementById('authCode').value.trim();
+        // 防御性：增加 toUpperCase() 防止用户手机输入大小写错乱
+        const inputCode = document.getElementById('authCode').value.trim().toUpperCase();
         if (!inputCode) {
             alert("请输入测试码！");
             return;
@@ -402,6 +403,11 @@
     let g_vetoReasons = []; 
 
     function submitQuiz() {
+        // 防御性：锁定按钮防连点
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.innerText = "数据处理中...";
+
         g_totalScore = 0;
         g_veto = false;
         g_dimScores = [0, 0, 0, 0, 0];
@@ -432,6 +438,9 @@
 
         if (answeredCount < 25) {
             alert("请仔细回答完所有 25 道测试题后再生成报告哦！");
+            // 防御性：释放按钮锁定
+            submitBtn.disabled = false;
+            submitBtn.innerText = "生成专属分析报告";
             return;
         }
 
@@ -537,7 +546,7 @@
                     <ul>${reasonsHtml}</ul>
                 </div>
                 <p><strong>深度剖析：</strong>这种特质极具迷惑性，但本身就是生活中的高危风险。继续维持关系，个人的情绪、财产甚至安全都可能受到严重剥削。</p>
-                <p><strong>【核心建议】：</strong><br>1. 丢掉幻想：核心品性极难改变。<br>2. 及时止损：尽早剥离财务和情感纠葛。<br>3. 物理隔绝：准备好安全边界，保护自己。</p>`;
+                <p><strong>【核心建议】：</strong><br>1. 丢掉幻想：核心品性极极难改变。<br>2. 及时止损：尽早剥离财务和情感纠葛。<br>3. 物理隔绝：准备好安全边界，保护自己。</p>`;
         } else if (g_totalScore >= 90) {
             report.innerHTML = "<h3>👑 【极度稀缺】高质量人生合伙人</h3><p><strong>深度剖析：</strong>你的伴侣在此次测试中表现极为优异。他的现实底盘稳固，情绪价值拉满。他心智成熟、内核稳定，不仅是亲密恋人，更是能背靠背应对生活的优质战友。这种特质在样本库中属于极度稀缺资源。</p><p><strong>【核心建议】：</strong><br>1. 正向反馈：对这种优质伴侣，不要吝啬肯定与夸奖。<br>2. 警惕过度索取：双向奔赴才能长久，避免将其视为单向的情绪/物质提供者。<br>3. 长期规划：建议尽早进行更深度的未来利益绑定。</p>";
         } else if (g_totalScore >= 75) {
@@ -672,66 +681,43 @@
         const originalMargin = container.style.margin;
         const originalPadding = container.style.padding;
 
-        // html2canvas 在页面有滚动条时可能会截断，所以强制置顶
         window.scrollTo(0, 0);
 
-        // 核心黑科技：强制将容器撑开到 700px，这样即使用户用极窄的手机屏幕点击下载，
-        // 导出的 PDF 依然是类似电脑端的完美宽屏排版，不会导致文字和图表拥挤。
         container.style.width = '700px';
         container.style.maxWidth = '700px';
         container.style.margin = '0 auto';
-        container.style.padding = '30px'; // 给 PDF 增加一点内边距
+        container.style.padding = '30px'; 
         
-        // 生成 PDF 时隐藏下载按钮本身
         btn.style.display = 'none';
 
         try {
-            // 1. 将指定区域转换为 Canvas (提升清晰度 scale: 2)
             const canvas = await html2canvas(container, {
                 scale: 2, 
                 useCORS: true, 
-                backgroundColor: '#fdf3f6' // 保持背景粉底色
+                backgroundColor: '#fdf3f6'
             });
 
-            // 2. 转为图片数据 (JPEG 格式压缩比好一点)
             const imgData = canvas.toDataURL('image/jpeg', 1.0);
 
-            // 3. 初始化 jsPDF (A4纸张，纵向)
+            // 核心修复：摒弃强行切断分页逻辑，直接动态计算长图高度，生成一整张贴合的卷轴PDF
             const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pdfWidth = 210; // A4 纸宽度 mm
+            const pdfHeight = (canvas.height * pdfWidth) / canvas.width; // 等比例计算长图所需的精确高度
 
-            // 4. 计算图片在 A4 纸上的等比例缩放尺寸
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = pdf.internal.pageSize.getHeight();
-            
-            // 左右留白 10mm
-            const margin = 10; 
-            const renderWidth = pdfWidth - (margin * 2);
-            const renderHeight = (renderWidth * canvas.height) / canvas.width;
+            // 动态初始化这页 PDF 的长宽
+            const pdf = new jsPDF('p', 'mm', [pdfWidth, pdfHeight]);
 
-            let heightLeft = renderHeight;
-            let position = margin; // 第一页的起始 Y 坐标
+            // 直接将图片一波铺满
+            pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
 
-            // 5. 写入第一页
-            pdf.addImage(imgData, 'JPEG', margin, position, renderWidth, renderHeight);
-            heightLeft -= (pdfHeight - margin * 2);
-
-            // 6. 如果内容过长，自动进行分页处理
-            while (heightLeft > 0) {
-                position = heightLeft - renderHeight + margin;
-                pdf.addPage();
-                pdf.addImage(imgData, 'JPEG', margin, position, renderWidth, renderHeight);
-                heightLeft -= (pdfHeight - margin * 2);
-            }
-
-            // 7. 触发下载
+            // 触发下载
             pdf.save(`伴侣深度评估报告_${new Date().getTime()}.pdf`);
 
         } catch (error) {
             console.error("PDF 生成失败:", error);
             alert("报告生成失败，请重试或更换浏览器。");
         } finally {
-            // 恢复原状，不影响用户继续在页面上的浏览体验
+            // 恢复原状
             container.style.width = originalWidth;
             container.style.maxWidth = originalMaxWidth;
             container.style.margin = originalMargin;
