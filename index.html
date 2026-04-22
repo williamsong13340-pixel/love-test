@@ -6,12 +6,13 @@
     <title>亲密关系质量与伴侣特质深度评估量表</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* 样式保持不变，稍微优化底部版权 */
+        /* 基础样式与色彩配置 */
         body { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background-color: #fdf3f6; color: #4a4a4a; margin: 0; padding: 15px; }
         .container { max-width: 700px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 16px; box-shadow: 0 8px 25px rgba(255, 182, 193, 0.2); border: 1px solid #ffebf0; position: relative; padding-bottom: 60px; }
         h1 { text-align: center; color: #d81b60; font-size: 22px; margin-bottom: 10px; }
         .subtitle { text-align: center; color: #a07a82; font-size: 13px; margin-bottom: 25px; }
         
+        /* 按钮样式 */
         .btn { display: block; width: 100%; padding: 16px; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; text-align: center; color: white; box-sizing: border-box; }
         .btn-pink-light { background: linear-gradient(135deg, #ff9a9e, #fecfef); box-shadow: 0 4px 15px rgba(255, 154, 158, 0.4); color: #c2185b; }
         .btn-pink-light:hover { background: linear-gradient(135deg, #fecfef, #ff9a9e); }
@@ -19,15 +20,18 @@
         .btn-pink-dark:hover { background: linear-gradient(135deg, #ff7eb3, #ff758c); }
         .btn:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; color: #666;}
         
+        /* 提示框 */
         .disclaimer-box { background: #fff5f7; border: 1px dashed #ffb6c1; padding: 12px 15px; border-radius: 8px; font-size: 12px; color: #885a63; line-height: 1.6; margin-bottom: 20px; text-align: left; }
         .disclaimer-box strong { color: #d81b60; }
 
+        /* 验证界面 */
         #auth-screen { padding: 20px 10px; text-align: center; }
         .lock-icon { font-size: 50px; margin-bottom: 15px; }
         .auth-tips { font-size: 14px; color: #a07a82; margin-bottom: 30px; line-height: 1.6; }
         .auth-input { width: 90%; max-width: 350px; padding: 15px; font-size: 16px; text-align: center; border: 2px solid #f8cdda; border-radius: 8px; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 2px; outline: none; transition: 0.3s; background: #fffcfd; color: #d81b60; font-weight: bold; }
         .auth-input:focus { border-color: #ff758c; box-shadow: 0 0 8px rgba(255, 117, 140, 0.2); }
 
+        /* 答题界面 */
         #quiz-screen { display: none; }
         .intro { background: #fff0f4; padding: 15px; border-radius: 8px; margin-bottom: 25px; font-size: 14px; color: #c2185b; border-left: 4px solid #ff758c; }
         .question { margin-top: 20px; padding: 15px; border: 1px solid #ffebf0; border-radius: 8px; background: #fffbfc; }
@@ -36,6 +40,7 @@
         .options label:hover { background: #fff0f4; border-color: #ff758c; color: #d81b60; }
         input[type="radio"] { margin-right: 10px; accent-color: #ff758c; }
 
+        /* 加载界面 */
         #loading-screen { display: none; text-align: center; padding: 60px 20px; }
         .spinner { width: 50px; height: 50px; border: 5px solid #ffebf0; border-top: 5px solid #ff758c; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -43,6 +48,7 @@
         .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #ff9a9e, #ff758c); transition: width 0.3s ease; }
         #loading-text { font-size: 16px; color: #d81b60; font-weight: bold; margin-top: 20px; height: 24px;}
 
+        /* 结果界面 */
         #result-screen { display: none; padding-top: 20px; }
         .result-header { text-align: center; margin-bottom: 30px; color: #d81b60; }
         .score-box { background: #fff5f7; border: 2px solid #ffb6c1; padding: 20px; border-radius: 12px; margin-bottom: 25px; text-align: center; }
@@ -51,9 +57,10 @@
         .chart-wrapper { background: white; border: 1px solid #ffebf0; border-radius: 12px; padding: 15px; margin-bottom: 25px; box-shadow: 0 2px 10px rgba(255, 182, 193, 0.15); }
         .chart-title { text-align: center; font-size: 15px; font-weight: bold; color: #a07a82; margin-bottom: 10px; }
         canvas { max-width: 100%; }
-        .report-content { background: #fffcfd; padding: 20px; border-radius: 12px; border-left: 5px solid #ff758c; font-size: 15px; line-height: 1.8; color: #5d4037; border: right: 1px solid #ffebf0; border-top: 1px solid #ffebf0; border-bottom: 1px solid #ffebf0;}
+        .report-content { background: #fffcfd; padding: 20px; border-radius: 12px; border-left: 5px solid #ff758c; font-size: 15px; line-height: 1.8; color: #5d4037; border-right: 1px solid #ffebf0; border-top: 1px solid #ffebf0; border-bottom: 1px solid #ffebf0;}
         .report-content h3 { color: #d81b60; margin-top: 0; font-size: 18px; }
         
+        /* 致命红线警示框 */
         .fatal-warning-box { background: #fff0f0; border: 1px solid #ffcccc; padding: 15px; border-radius: 8px; margin: 15px 0; }
         .fatal-warning-box h4 { color: #c0392b; margin-top: 0; margin-bottom: 10px; font-size: 16px; }
         .fatal-warning-box ul { margin: 0; padding-left: 20px; color: #c0392b; font-weight: bold; }
@@ -67,16 +74,16 @@
 
 <div class="container">
     <h1>亲密关系质量与伴侣特质深度评估</h1>
-    <div class="subtitle">深度心理量表 v3.0 | 仅供付费用户使用</div>
+    <div class="subtitle">深度心理量表 v3.0 | 仅供授权用户使用</div>
 
     <div id="auth-screen">
         <div class="disclaimer-box">
             <strong>免责声明：</strong><br>
-            本测试结果基于社会交换理论及心理行为模式生成，仅供情感复盘与自我觉察参考。感情世界复杂多变，请结合现实情况理性看待。测试过程完全私密，不会上传记录您的个人信息。
+            本测试结果基于社会交换理论及心理行为模式生成，仅供情感复盘与自我觉察参考。感情世界复杂多变，请结合现实情况理性看待。测试过程完全私密，系统不会上传或记录您的个人信息。
         </div>
 
         <div class="lock-icon">🔐</div>
-        <h2 style="color: #d81b60;">系统已锁定</h2>
+        <h2 style="color: #d81b60;">测试入口已锁定</h2>
         <p class="auth-tips">
             本测试涉及深度心理分析与现实刺痛。<br>
             <strong>非获取授权用户禁止访问。</strong><br><br>
@@ -88,7 +95,7 @@
 
     <div id="quiz-screen">
         <div class="intro">
-            <strong>⚠️ 核心要求：</strong>请摒弃“恋爱脑”，严格根据他在现实生活中的<strong>真实表现</strong>作答，不要根据他的“承诺”或“画饼”来选择。数据无情，请真实面对。
+            <strong>⚠️ 核心填写要求：</strong>请尽量摒弃主观光环，严格根据他在现实生活中的<strong>真实日常表现</strong>作答，不要根据他的“承诺”或“偶尔一次的例外”来选择。请真实面对。
         </div>
         <form id="quizForm">
             <div id="questions-container"></div>
@@ -99,7 +106,7 @@
     <div id="loading-screen">
         <div class="spinner"></div>
         <h2 style="color: #d81b60;">报告生成中...</h2>
-        <div id="loading-text">正在整理问卷数据...</div>
+        <div id="loading-text">正在汇总问卷数据...</div>
         <div class="progress-bar">
             <div class="progress-fill" id="progress-fill"></div>
         </div>
@@ -118,7 +125,7 @@
         </div>
 
         <div class="chart-wrapper">
-            <div class="chart-title">【婚恋市场竞争力正态分布图】</div>
+            <div class="chart-title">【样本市场竞争力正态分布图】</div>
             <canvas id="bellChart"></canvas>
         </div>
 
@@ -130,13 +137,13 @@
         <div class="report-content" id="reportContent"></div>
     </div>
 
-    <!-- 版权声明 -->
+    <!-- 底部版权声明 -->
     <div class="copyright">© 版权所有：测测看（杭州）文化创意工作室</div>
 </div>
 
 <script>
-    // 题目数据重构：加上了id和dimIndex(维度标识)，方便打乱后还能算对分
-    let rawQuestions = [
+    // 题目数据：带 id 用于标记，dimIndex 用于分类算分，isVeto 用于一票否决
+    const rawQuestions = [
         // 维度0：生存基石
         { id: 1, dimIndex: 0, q: "他目前的收入水平与职业前景如何？", options: [
             { text: "A. 收入丰厚且稳定，在同龄男性中属于前列（如高薪、有分红/股权等）。", score: 4 },
@@ -231,7 +238,7 @@
             { text: "D. 极端独裁（“我是男人必须听我的”、“不想过就分手”）。", score: 1 }
         ]},
         // 维度3：成长联盟
-        { id: 16, dimIndex: 3, q: "对于你的事业发展或变美的渴望，他的态度是：", options: [
+        { id: 16, dimIndex: 3, q: "对于你的事业发展或个人提升，他的态度是：", options: [
             { text: "A. 鼎力支持，甚至愿意提供资金/人脉，或主动包揽家务。", score: 4 },
             { text: "B. 不干涉，觉得你开心就好，偶尔能提供口头鼓励。", score: 3 },
             { text: "C. 觉得搞事业没用，经常泼冷水打压你的积极性。", score: 2 },
@@ -246,14 +253,14 @@
         { id: 18, dimIndex: 3, q: "你们对未来生活的蓝图匹配度如何？", options: [
             { text: "A. 核心价值观一致，且他已把你规划进未来，在切实努力。", score: 4 },
             { text: "B. 大方向一致，某些细节在磨合，但不构成根本矛盾。", score: 3 },
-            { text: "C. 回避未来话题，一提起结婚/买房就用“顺其自然”敷衍拖延。", score: 2 },
-            { text: "D. 观念存在不可调和的死局（如你要丁克他要生），且不愿让步。", score: 1 }
+            { text: "C. 回避未来话题，一提起深远规划就用“顺其自然”敷衍拖延。", score: 2 },
+            { text: "D. 观念存在不可调和的死局，且不愿让步。", score: 1 }
         ]},
         { id: 19, dimIndex: 3, q: "和他在一起之后，你对自己和生活的整体感觉是：", options: [
-            { text: "A. 变得更自信漂亮，感觉世界充满光亮（被滋养的脸）。", score: 4 },
+            { text: "A. 变得更自信漂亮，感觉世界充满光亮（状态被滋养）。", score: 4 },
             { text: "B. 没什么太大起伏，但生活多了一份安稳的陪伴。", score: 3 },
             { text: "C. 经常陷入自我怀疑焦虑，感觉精力被抽干，越来越憔悴。", score: 2 },
-            { text: "D. 完全失去了自我，身材容貌精神状态断崖式衰老。", score: 1 }
+            { text: "D. 完全失去了自我，身心状态断崖式衰落。", score: 1 }
         ]},
         { id: 20, dimIndex: 3, q: "当你面临提升自己的机会（如进修、健身）时：", options: [
             { text: "A. 他会督促并陪伴你一起进步，形成相互托举的良性循环。", score: 4 },
@@ -261,18 +268,18 @@
             { text: "C. 他觉得你在瞎折腾，经常阴阳怪气地冷嘲热讽。", score: 2 },
             { text: "D. 充满控制欲，不准你社交，试图斩断圈子将你孤立。", score: 1 }
         ]},
-        // 维度4：底线与品性
-        { id: 21, dimIndex: 4, isVeto: true, vetoReason: "毫无异性边界感 (存在劈腿/出轨/聊骚前科)", q: "他在与异性相处时的“边界感”如何？", options: [
+        // 维度4：底线与品性（触发一票否决）
+        { id: 21, dimIndex: 4, isVeto: true, vetoReason: "毫无异性边界感 (存在严重背叛/聊骚前科)", q: "他在与异性相处时的“边界感”如何？", options: [
             { text: "A. 主动保持安全距离，果断拒绝一切暧昧并向你报备。", score: 4 },
             { text: "B. 有基本的分寸，不会单独约会，没有暧昧信息。", score: 3 },
             { text: "C. 经常认“好妹妹/红颜”，你吃醋他就指责你“无理取闹”。", score: 2 },
-            { text: "D. 实锤过劈腿出轨聊骚，或手机常备猎艳交友软件。", score: 1 }
+            { text: "D. 实锤过背叛行为，或手机常备猎艳交友软件。", score: 1 }
         ]},
-        { id: 22, dimIndex: 4, isVeto: true, vetoReason: "触碰道德红线 (沾染不良嗜好/或有家暴倾向)", q: "关于不良嗜好，他的实际情况是：", options: [
+        { id: 22, dimIndex: 4, isVeto: true, vetoReason: "触碰道德红线 (沾染不良嗜好/或有暴力倾向)", q: "关于不良嗜好，他的实际情况是：", options: [
             { text: "A. 极其自律，绝对不沾染任何破坏底线的恶习。", score: 4 },
             { text: "B. 偶尔抽烟喝酒应酬，在关键时期能狠心控制。", score: 3 },
             { text: "C. 沉迷于极度消耗时间/金钱的爱好（如重度网游、打牌）。", score: 2 },
-            { text: "D. 沾染黄赌毒，或有屡教不改的家暴前科（哪怕一次）。", score: 1 }
+            { text: "D. 沾染严重恶习，或有屡教不改的暴力前科（哪怕一次）。", score: 1 }
         ]},
         { id: 23, dimIndex: 4, isVeto: true, vetoReason: "极度缺乏责任感 (习惯性撒谎/遇事退缩甩锅)", q: "在遇到需要承担责任的事情时，他的习惯性反应是：", options: [
             { text: "A. 敢作敢当，第一时间想办法弥补损失保护你。", score: 4 },
@@ -280,10 +287,10 @@
             { text: "C. 满嘴跑火车，承诺的事情从不兑现，毫无契约精神。", score: 2 },
             { text: "D. 习惯性撒谎甩锅，关键时刻毫不犹豫推你出去挡枪。", score: 1 }
         ]},
-        { id: 24, dimIndex: 4, isVeto: true, vetoReason: "原生家庭严重拖累 (无底洞/极端妈宝男)", q: "他与原生家庭（尤其是他母亲）的关系和边界是：", options: [
+        { id: 24, dimIndex: 4, isVeto: true, vetoReason: "原生家庭严重拖累 (无底洞/极端妈宝男)", q: "他与原生家庭的关系和边界是：", options: [
             { text: "A. 经济人格独立，拎得清，婚后小家庭利益排第一。", score: 4 },
             { text: "B. 长辈偶尔干涉，但在关键时刻能护着你。", score: 3 },
-            { text: "C. “妈宝男”，凡事听家里的，长辈指责你时他装死。", score: 2 },
+            { text: "C. 缺乏主见，凡事听家里的，长辈指责你时他装死。", score: 2 },
             { text: "D. 原生家庭是无底洞，且他甘之如饴被吸血并拉你下水。", score: 1 }
         ]},
         { id: 25, dimIndex: 4, isVeto: true, vetoReason: "底层品性恶劣 (极度自私/有虐待弱者倾向)", q: "观察他对待弱者（如服务员、外卖员、流浪动物）的态度：", options: [
@@ -296,7 +303,7 @@
 
     let shuffledQuestions = [];
 
-    // 洗牌算法：用于打乱数组顺序
+    // 洗牌算法：用于全自动打乱数组顺序
     function shuffleArray(array) {
         let newArray = [...array];
         for (let i = newArray.length - 1; i > 0; i--) {
@@ -306,7 +313,7 @@
         return newArray;
     }
 
-    // 与后端进行验证 (Vercel API)
+    // 后端接口验证
     async function verifyToken() {
         const inputCode = document.getElementById('authCode').value.trim();
         if (!inputCode) {
@@ -315,11 +322,10 @@
         }
 
         const btn = document.getElementById('authBtn');
-        btn.innerText = "验证中...";
+        btn.innerText = "系统验证中...";
         btn.disabled = true;
 
         try {
-            // 调用 Vercel 的后端函数
             const response = await fetch('/api/verify', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -329,11 +335,13 @@
             const result = await response.json();
 
             if (result.success) {
+                // 验证成功，隐藏锁屏，渲染题目
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('quiz-screen').style.display = 'block';
                 renderQuestions();
             } else {
-                alert("❌ 测试码无效或已过期！");
+                // 验证失败，直接弹出后端传来的精确报错文案
+                alert(result.message);
                 btn.innerText = "验证并开启测试";
                 btn.disabled = false;
             }
@@ -361,6 +369,7 @@
         });
     }
 
+    // 全局变量记录分数和底线触发
     let g_totalScore = 0;
     let g_veto = false;
     let g_dimScores = [0, 0, 0, 0, 0]; 
@@ -373,7 +382,6 @@
         g_vetoReasons = [];
         let answeredCount = 0;
 
-        // 遍历打乱后的题目去算分
         for (let i = 0; i < shuffledQuestions.length; i++) {
             let item = shuffledQuestions[i];
             const radios = document.getElementsByName('q_' + item.id);
@@ -397,7 +405,7 @@
         }
 
         if (answeredCount < 25) {
-            alert("请回答完所有 25 道测试题后再生成报告哦！");
+            alert("请仔细回答完所有 25 道测试题后再生成报告哦！");
             return;
         }
 
