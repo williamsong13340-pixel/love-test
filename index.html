@@ -4,7 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>亲密关系质量与伴侣特质深度评估量表</title>
+    
+    <!-- 引入图表库 -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- 引入 PDF 生成核心库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     <style>
         /* 基础样式与色彩配置 */
         body { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background-color: #fdf3f6; color: #4a4a4a; margin: 0; padding: 15px; }
@@ -135,6 +142,11 @@
         </div>
 
         <div class="report-content" id="reportContent"></div>
+
+        <!-- 新增的导出 PDF 按钮 -->
+        <button id="downloadPdfBtn" class="btn btn-pink-light" onclick="generatePDF()" style="margin-top: 25px; margin-bottom: 20px;">
+            📄 保存并下载专属评估报告 (PDF)
+        </button>
     </div>
 
     <!-- 底部版权声明 -->
@@ -142,7 +154,21 @@
 </div>
 
 <script>
-    // 题目数据：带 id 用于标记，dimIndex 用于分类算分，isVeto 用于一票否决
+    // ================= 监听回车键事件 =================
+    window.onload = function() {
+        const authInput = document.getElementById('authCode');
+        if (authInput) {
+            authInput.addEventListener('keydown', function(event) {
+                // 当用户在输入框内按下 Enter 键时，触发验证
+                if (event.key === 'Enter') {
+                    event.preventDefault(); // 阻止默认的回车换行/表单提交行为
+                    verifyToken(); // 直接调用验证函数
+                }
+            });
+        }
+    };
+
+    // ================= 题目数据 =================
     const rawQuestions = [
         // 维度0：生存基石
         { id: 1, dimIndex: 0, q: "他目前的收入水平与职业前景如何？", options: [
@@ -222,7 +248,7 @@
         { id: 13, dimIndex: 2, q: "当他自己遇到重大挫折（失业、亏损）时：", options: [
             { text: "A. 短暂低落后能迅速调整心态，展现极强韧性去寻找出路。", score: 4 },
             { text: "B. 会向你倒苦水求安慰，但基本能维持正常的生活节奏。", score: 3 },
-            { text: "C. 彻底崩溃，长时间萎靡不振，把负能量全排泄给你。", score: 2 },
+            { text: "C.彻底崩溃，长时间萎靡不振，把负能量全排泄给你。", score: 2 },
             { text: "D. 将失败全归咎于外界，靠酗酒、网游等极度逃避现实。", score: 1 }
         ]},
         { id: 14, dimIndex: 2, q: "他的日常情绪状态是怎样的？", options: [
@@ -629,6 +655,92 @@
                 plugins: { legend: { display: false } }
             }
         });
+    }
+
+    // ================= PDF 导出功能 =================
+    async function generatePDF() {
+        const btn = document.getElementById('downloadPdfBtn');
+        const originalText = btn.innerText;
+        btn.innerText = "⏳ 正在生成高清 PDF 报告，请稍候...";
+        btn.disabled = true;
+
+        const container = document.querySelector('.container');
+        
+        // 关键步骤：记录原样式
+        const originalWidth = container.style.width;
+        const originalMaxWidth = container.style.maxWidth;
+        const originalMargin = container.style.margin;
+        const originalPadding = container.style.padding;
+
+        // html2canvas 在页面有滚动条时可能会截断，所以强制置顶
+        window.scrollTo(0, 0);
+
+        // 核心黑科技：强制将容器撑开到 700px，这样即使用户用极窄的手机屏幕点击下载，
+        // 导出的 PDF 依然是类似电脑端的完美宽屏排版，不会导致文字和图表拥挤。
+        container.style.width = '700px';
+        container.style.maxWidth = '700px';
+        container.style.margin = '0 auto';
+        container.style.padding = '30px'; // 给 PDF 增加一点内边距
+        
+        // 生成 PDF 时隐藏下载按钮本身
+        btn.style.display = 'none';
+
+        try {
+            // 1. 将指定区域转换为 Canvas (提升清晰度 scale: 2)
+            const canvas = await html2canvas(container, {
+                scale: 2, 
+                useCORS: true, 
+                backgroundColor: '#fdf3f6' // 保持背景粉底色
+            });
+
+            // 2. 转为图片数据 (JPEG 格式压缩比好一点)
+            const imgData = canvas.toDataURL('image/jpeg', 1.0);
+
+            // 3. 初始化 jsPDF (A4纸张，纵向)
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+
+            // 4. 计算图片在 A4 纸上的等比例缩放尺寸
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+            
+            // 左右留白 10mm
+            const margin = 10; 
+            const renderWidth = pdfWidth - (margin * 2);
+            const renderHeight = (renderWidth * canvas.height) / canvas.width;
+
+            let heightLeft = renderHeight;
+            let position = margin; // 第一页的起始 Y 坐标
+
+            // 5. 写入第一页
+            pdf.addImage(imgData, 'JPEG', margin, position, renderWidth, renderHeight);
+            heightLeft -= (pdfHeight - margin * 2);
+
+            // 6. 如果内容过长，自动进行分页处理
+            while (heightLeft > 0) {
+                position = heightLeft - renderHeight + margin;
+                pdf.addPage();
+                pdf.addImage(imgData, 'JPEG', margin, position, renderWidth, renderHeight);
+                heightLeft -= (pdfHeight - margin * 2);
+            }
+
+            // 7. 触发下载
+            pdf.save(`伴侣深度评估报告_${new Date().getTime()}.pdf`);
+
+        } catch (error) {
+            console.error("PDF 生成失败:", error);
+            alert("报告生成失败，请重试或更换浏览器。");
+        } finally {
+            // 恢复原状，不影响用户继续在页面上的浏览体验
+            container.style.width = originalWidth;
+            container.style.maxWidth = originalMaxWidth;
+            container.style.margin = originalMargin;
+            container.style.padding = originalPadding;
+            
+            btn.style.display = 'block';
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
     }
 </script>
 
