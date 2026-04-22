@@ -4,6 +4,11 @@ export default function handler(req, res) {
         return res.status(405).json({ message: '不允许' });
     }
 
+    // 防御性处理：防止由于请求包异常(无 body 等情况)导致解析代码崩溃引发 500
+    if (!req.body || typeof req.body.code === 'undefined') {
+        return res.status(400).json({ success: false, message: '请求参数缺失！' });
+    }
+
     const { code } = req.body;
     
     // 错误类型 1：没填密码
@@ -11,7 +16,8 @@ export default function handler(req, res) {
         return res.status(401).json({ success: false, message: '请输入测试码！' });
     }
 
-    const cleanCode = code.trim().toUpperCase();
+    // 防御性：确保即使前端传来的包含空格也能处理，并强制转大写兼容
+    const cleanCode = String(code).trim().toUpperCase();
     
     // 错误类型 2：格式不对（比如少复制了一位，或者前缀不是 CCK-）
     if (!cleanCode.startsWith('CCK-') || cleanCode.length !== 12) {
