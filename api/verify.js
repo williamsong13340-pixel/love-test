@@ -1,29 +1,23 @@
 // api/verify.js
 export default function handler(req, res) {
-    // 限制请求方式
     if (req.method !== 'POST') {
-        return res.status(405).json({ message: '请求方法不允许' });
+        return res.status(405).json({ message: '不允许' });
     }
 
     const { code } = req.body;
     
-    // 【排查点 1：空值】买家什么都没填就点验证
+    // 错误类型 1：没填密码
     if (!code) {
-        return res.status(401).json({ success: false, message: '请输入测试码' });
+        return res.status(401).json({ success: false, message: '请输入测试码！' });
     }
 
-    // 格式化：转大写，去空格
     const cleanCode = code.trim().toUpperCase();
     
-    // 【排查点 2：格式错误】没带CCK前缀，或者少复制/多复制了字母
+    // 错误类型 2：格式不对（比如少复制了一位，或者前缀不是 CCK-）
     if (!cleanCode.startsWith('CCK-') || cleanCode.length !== 12) {
-        return res.status(401).json({ 
-            success: false, 
-            message: '【格式错误】请输入完整的12位测试码（需包含 CCK- 前缀）' 
-        });
+        return res.status(401).json({ success: false, message: '❌ 测试码格式不正确，请检查是否多输了空格或少漏了字母。' });
     }
 
-    // 截取核心部分
     const body = cleanCode.replace('CCK-', ''); 
     const timeStr = body.substring(0, 4);
     const randStr = body.substring(4, 7);
@@ -38,35 +32,29 @@ export default function handler(req, res) {
     const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const expectedChecksum = chars[sum % 36];
 
-    // 【排查点 3：伪造或输错】长度对，但是公式算出来对不上。说明买家看错字母了，或者在瞎编密码
+    // 错误类型 3：密码输错了（暗号校验对不上，防止买家瞎蒙）
     if (checksum !== expectedChecksum) {
-        return res.status(401).json({ 
-            success: false, 
-            message: '【无效代码】未找到该授权码，请检查是否有字母 O 和数字 0 看混淆的情况' 
-        });
+        return res.status(401).json({ success: false, message: '❌ 无效的测试码（防伪校验失败，请仔细核对是否输错字母或数字）' });
     }
 
-    // 解析时间戳
+    // 时间解密与验证
     const codeHours = parseInt(timeStr, 36); 
     const currentHours = Math.floor(Date.now() / (1000 * 60 * 60)); 
     const hoursDiff = currentHours - codeHours; 
 
-    // 【排查点 4：已过期】超过了 720 小时（30天）
+    // 错误类型 4：密码已过期
     if (hoursDiff > 720) {
         return res.status(401).json({ 
             success: false, 
-            message: '【已过期】该测试码生成已超过30天，根据隐私保护机制，已在云端自动销毁。' 
+            message: `⚠️ 该测试码已失效（距生成已超过 30 天，系统已在云端自动将其销毁）。` 
         });
     }
     
-    // 【排查点 5：时间异常】预防买家穿越，或者服务器时间出错
+    // 错误类型 5：时空异常（基本不可能发生，除非服务器时间乱了）
     if (hoursDiff < 0) {
-        return res.status(401).json({ 
-            success: false, 
-            message: '【系统提示】测试码时间异常，请联系客服补发。' 
-        });
+        return res.status(401).json({ success: false, message: '❌ 测试码时空异常，请联系管理员。' });
     }
 
-    // 全部验证通过！发放通行证
-    res.status(200).json({ success: true, message: '验证成功，正在开启测试...' });
+    // 全部通过！
+    res.status(200).json({ success: true, message: '验证成功' });
 }
