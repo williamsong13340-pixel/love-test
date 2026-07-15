@@ -585,7 +585,7 @@
             let reasonsHtml = g_vetoReasons.map(r => `<p style="margin-bottom:15px; border-bottom:1px dashed #ffd6d6; padding-bottom:10px;">${r}</p>`).join('');
             report.innerHTML = `
                 <h3 style="color:#d32f2f;">🚨 【高危预警】请立即评估你的安全状况</h3>
-                <p><strong>⚠️ 底线触发：</strong>雷达图评估已强制熔断，您的关系已突破心理健康的底线，进入了临床干预甚至法律干预的范畴。</p>
+                <p><strong>⚠️ 底线触发：</strong>雷达图评估已强制熔断，您的关系已突破健康的底线，进入了临床干预甚至法律干预的范畴。</p>
                 <div class="fatal-warning-box">
                     <h4>⛔ 系统已锁定以下极端危险指标：</h4>
                     ${reasonsHtml}
@@ -608,12 +608,12 @@
         let stitchedHTML = "<h3>📑 深度关系研判</h3>";
         
         if (strengths.length > 0) {
-            stitchedHTML += "<p><span style='color:var(--primary); font-weight:bold;'>💡 高光与舒适区：</span>在你们的相处中，" + strengths.join("；同时，") + "。</p>";
+            stitchedHTML += "<p><span style='color:var(--primary); font-weight:bold;'>💡 高光与舒适区：</span>在你们的相处中，" + strengths.join("；") + "。</p>";
         }
         
         if (weaknesses.length > 0) {
             let prefix = strengths.length > 0 ? "<span style='color:#8a7378; font-weight:bold;'>⚠️ 盲区与消耗点：</span>但是，" : "<span style='color:#8a7378; font-weight:bold;'>⚠️ 盲区与消耗点：</span>在这段关系中，";
-            stitchedHTML += "<p>" + prefix + weaknesses.join("；此外，") + "。</p>";
+            stitchedHTML += "<p>" + prefix + weaknesses.join("；") + "。</p>";
         }
 
         let overallText = "";
