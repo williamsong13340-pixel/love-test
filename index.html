@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>亲密关系质量与伴侣特质深度评估量表</title>
+    <title>亲密关系适配度与潜在风险深度评估量表</title>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -30,7 +30,6 @@
             position: relative;
             min-height: 100vh;
             overflow-x: hidden;
-            /* 弥散光背景装饰 */
         }
         body::before, body::after {
             content: ''; position: fixed; border-radius: 50%; z-index: -1; filter: blur(60px); opacity: 0.6;
@@ -38,7 +37,6 @@
         body::before { width: 300px; height: 300px; background: #ffe4e9; top: -50px; left: -50px; }
         body::after { width: 250px; height: 250px; background: #fad0c4; bottom: -50px; right: -50px; }
 
-        /* --- 核心容器 (毛玻璃卡片风格) --- */
         .container { 
             max-width: 600px; 
             margin: 0 auto; 
@@ -53,7 +51,6 @@
             padding-bottom: 70px; 
         }
 
-        /* --- 标题与排版 --- */
         h1 { 
             text-align: center; 
             font-size: 24px; 
@@ -65,7 +62,6 @@
         }
         .subtitle { text-align: center; color: var(--text-sub); font-size: 13px; margin-bottom: 30px; letter-spacing: 1px; }
 
-        /* --- 现代按钮 --- */
         .btn { 
             display: block; width: 100%; padding: 16px; border: none; border-radius: 16px; 
             font-size: 17px; font-weight: 600; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
@@ -84,7 +80,6 @@
         .btn-pink-dark:active { transform: scale(0.98); box-shadow: 0 3px 10px rgba(255, 117, 140, 0.2); }
         .btn:disabled { background: #e0e0e0; box-shadow: none; color: #999; transform: none; }
 
-        /* --- 验证界面 --- */
         #auth-screen { text-align: center; padding: 10px 0; }
         .disclaimer-box { 
             background: rgba(255, 255, 255, 0.7); border: 1px solid #f8cdda; padding: 16px; 
@@ -100,9 +95,7 @@
             background: white; color: var(--primary); font-weight: 800; box-sizing: border-box;
         }
         .auth-input:focus { border-color: var(--primary-light); box-shadow: 0 0 0 4px rgba(255, 117, 140, 0.1); }
-        .auth-input::placeholder { font-weight: 400; font-size: 14px; letter-spacing: 1px; color: #ccc;}
 
-        /* --- 答题界面 (卡片式选项) --- */
         #quiz-screen { display: none; }
         .intro { 
             background: rgba(255, 117, 140, 0.05); padding: 16px; border-radius: 16px; 
@@ -119,7 +112,6 @@
         }
         .question h4 { margin: 0 0 15px 0; color: var(--text-main); font-size: 16px; line-height: 1.5; font-weight: 600;}
         
-        /* 隐藏原生单选框，使用自定义卡片 UI */
         .options-wrapper { display: flex; flex-direction: column; gap: 12px; }
         .option-label { 
             position: relative; display: flex; align-items: flex-start; padding: 16px; 
@@ -128,7 +120,6 @@
             color: var(--text-sub); font-size: 15px; line-height: 1.5;
         }
         .option-label input[type="radio"] { position: absolute; opacity: 0; pointer-events: none; }
-        /* 选中状态 */
         .option-label:has(input[type="radio"]:checked) {
             border-color: var(--primary-light);
             background: rgba(255, 117, 140, 0.05);
@@ -136,8 +127,6 @@
             font-weight: 600;
             box-shadow: 0 4px 12px rgba(255, 117, 140, 0.15);
         }
-        
-        /* 兼容老版本浏览器的选中状态通过 JS 加 class 处理 */
         .option-label.selected {
             border-color: var(--primary-light);
             background: rgba(255, 117, 140, 0.05);
@@ -145,7 +134,6 @@
             font-weight: 600;
         }
 
-        /* --- 加载界面 --- */
         #loading-screen { display: none; text-align: center; padding: 80px 10px; }
         .spinner { 
             width: 60px; height: 60px; border: 4px solid #f8cdda; border-top: 4px solid var(--primary); 
@@ -157,7 +145,6 @@
         }
         .progress-fill { height: 100%; width: 0%; background: var(--primary-gradient); transition: width 0.3s ease; }
 
-        /* --- 结果界面 --- */
         #result-screen { display: none; }
         .score-box { 
             background: white; padding: 30px 20px; border-radius: 20px; margin-bottom: 25px; 
@@ -171,7 +158,10 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.03); 
         }
         .chart-title { text-align: center; font-size: 15px; font-weight: bold; color: var(--text-sub); margin-bottom: 15px; }
-        .radar-container { position: relative; width: 100%; max-width: 350px; margin: 0 auto; aspect-ratio: 1/1;} /* 限制雷达图高度防拉伸 */
+        
+        .bell-container, .radar-container {
+            position: relative; width: 100%; max-width: 400px; margin: 0 auto;
+        }
 
         .report-content { 
             background: white; padding: 25px 20px; border-radius: 20px; font-size: 15px; line-height: 1.8; 
@@ -179,37 +169,33 @@
         }
         .report-content h3 { color: var(--primary); margin-top: 0; font-size: 19px; border-bottom: 2px solid #fff0f4; padding-bottom: 10px;}
         
-        /* 致命红线警示框 */
         .fatal-warning-box { 
             background: #fff5f5; border: 1px solid #ffd6d6; padding: 16px; border-radius: 12px; margin: 20px 0; 
         }
         .fatal-warning-box h4 { color: #d32f2f; margin: 0 0 10px 0; font-size: 16px; }
         .fatal-warning-box ul { margin: 0; padding-left: 20px; color: #c62828; font-weight: 600; line-height: 1.6;}
 
-        /* 版权声明 */
         .copyright { position: absolute; bottom: 20px; left: 0; width: 100%; text-align: center; font-size: 12px; color: #bcaaaef0; }
 
-        /* PDF 导出时的降级类 (去除导致黑屏的高级特效) */
-        .pdf-export-mode { box-shadow: none !important; backdrop-filter: none !important; background: #fffcfd !important; }
+        .pdf-export-mode { box-shadow: none !important; backdrop-filter: none !important; background: #fffcfd !important; border:none !important;}
+        .pdf-export-mode * { animation: none !important; }
     </style>
 </head>
 <body>
 
 <div class="container" id="mainContainer">
-    <h1>亲密关系深度评估系统</h1>
-    <div class="subtitle">深度心理量表 v3.0 | 仅供授权用户使用</div>
+    <h1>深度评估系统 (商用版)</h1>
+    <div class="subtitle">亲密关系适配度与潜在风险 X光透视</div>
 
     <!-- 验证界面 -->
     <div id="auth-screen">
         <div class="disclaimer-box">
             <strong>免责声明：</strong><br>
-            本测试结果基于社会交换理论及心理行为模式生成，仅供情感复盘与自我觉察参考。测试过程完全私密，系统不会上传或记录您的个人信息。
+            本量表从现实物质、情绪价值、冲突处理、共同成长、人品底线 5 个维度，帮你用最理性的X光，彻底看透TA。测试过程完全私密，系统不记录任何信息。
         </div>
-
         <div class="lock-icon">🔐</div>
         <h2 style="color: var(--primary); font-size: 20px;">测试入口已锁定</h2>
         <p style="color: var(--text-sub); font-size: 14px; margin-bottom: 25px;">请输入您的专属测试码以开启评估：</p>
-        
         <input type="text" id="authCode" class="auth-input" placeholder="输入测试码...">
         <button id="authBtn" class="btn btn-pink-dark" onclick="verifyToken()">验证并开启测试</button>
     </div>
@@ -217,19 +203,19 @@
     <!-- 答题界面 -->
     <div id="quiz-screen">
         <div class="intro">
-            <strong>⚠️ 填写指南：</strong>请摒弃主观光环，严格根据TA在现实生活中的<strong>真实日常表现</strong>作答，不要根据“承诺”或“偶尔的例外”来选择。
+            <strong>⚠️ 填写指南：</strong>请根据TA的真实表现进行选择。不要选你“希望”TA做到的，请选TA“实际”做出来的。
         </div>
         <form id="quizForm">
             <div id="questions-container"></div>
-            <button type="button" id="submitBtn" class="btn btn-pink-dark" onclick="submitQuiz()">生成专属分析报告</button>
+            <button type="button" id="submitBtn" class="btn btn-pink-dark" onclick="submitQuiz()">生成专属诊断报告</button>
         </form>
     </div>
 
     <!-- 加载界面 -->
     <div id="loading-screen">
         <div class="spinner"></div>
-        <h2 style="color: var(--primary);">报告生成中...</h2>
-        <div id="loading-text" style="color: var(--text-sub); font-size: 15px; margin-top: 15px; height: 20px;">正在汇总问卷数据...</div>
+        <h2 style="color: var(--primary);">深度扫描中...</h2>
+        <div id="loading-text" style="color: var(--text-sub); font-size: 15px; margin-top: 15px; height: 20px;">正在提取问卷数据...</div>
         <div class="progress-bar">
             <div class="progress-fill" id="progress-fill"></div>
         </div>
@@ -240,18 +226,20 @@
         <h2 style="text-align: center; color: var(--primary); margin-bottom: 20px; font-size: 22px;">📊 专属诊断报告</h2>
         
         <div class="score-box" id="scoreBox">
-            <div style="color: var(--text-sub); font-size: 14px; font-weight: bold;">综合评估得分</div>
+            <div style="color: var(--text-sub); font-size: 14px; font-weight: bold;">综合评估得分 (满分125)</div>
             <div class="score-number" id="scoreValue">0</div>
             <div class="percentile-text" id="percentileText">加载中...</div>
         </div>
 
         <div class="chart-wrapper">
-            <div class="chart-title">【 样本市场竞争力分布 】</div>
-            <canvas id="bellChart"></canvas>
+            <div class="chart-title">【 大盘竞争力正态分布 】</div>
+            <div class="bell-container">
+                <canvas id="bellChart"></canvas>
+            </div>
         </div>
 
         <div class="chart-wrapper">
-            <div class="chart-title" id="radarTitle">【 五维特质雷达透视图 】</div>
+            <div class="chart-title" id="radarTitle">【 五维雷达扫描图 】</div>
             <div class="radar-container">
                 <canvas id="radarChart"></canvas>
             </div>
@@ -260,7 +248,7 @@
         <div class="report-content" id="reportContent"></div>
 
         <button id="downloadPdfBtn" class="btn btn-pink-light" onclick="generatePDF()" style="margin-top: 30px;">
-            📄 保存为长图 (PDF)
+            📄 保存为高清长图 (PDF)
         </button>
     </div>
 
@@ -268,176 +256,198 @@
 </div>
 
 <script>
-    // 监听回车键验证
     document.addEventListener('DOMContentLoaded', function() {
         const authInput = document.getElementById('authCode');
         if (authInput) {
             authInput.addEventListener('keydown', function(event) {
                 if (event.key === 'Enter') {
-                    event.preventDefault(); 
-                    verifyToken(); 
+                    event.preventDefault(); verifyToken(); 
                 }
             });
         }
     });
 
-    // 题目数据 (保持原样)
+    // 核心题库已全面升级为5项、125分制、强直击痛点文案
     const rawQuestions = [
-        { id: 1, dimIndex: 0, q: "TA目前的收入水平与职业前景如何？", options: [
-            { text: "A. 收入丰厚且稳定，在同龄人中属于前列（如高薪、有分红等）。", score: 4 },
-            { text: "B. 收入中等偏上，工作稳定，有清晰的涨薪或晋升空间。", score: 3 },
-            { text: "C. 收入勉强够两人日常开销，缺乏明显规划和上进心。", score: 2 },
-            { text: "D. 收入不稳定/待业，且经常好高骛远，天天做发财梦。", score: 1 }
+        { id: 1, dimIndex: 0, q: "TA现在的收入和工作状态怎么样？", options: [
+            { text: "A. 高薪且稳定，搞钱很猛，有清晰且极其靠谱的未来搞钱规划。", score: 5 },
+            { text: "B. 收入中上，工作稳定，一步一个脚印，有明确的涨薪空间。", score: 4 },
+            { text: "C. 够吃够喝，没什么大追求，过一天算一天。", score: 3 },
+            { text: "D. 收入不稳定/频繁换工作，还眼高手低，天天做着暴富梦。", score: 2 },
+            { text: "E. 经常失业，靠你养着，甚至还欠了一屁股烂账。", score: 1 }
         ]},
-        { id: 2, dimIndex: 0, q: "关于房产、车辆等核心资产，TA的情况是：", options: [
-            { text: "A. 已有房车且无压力，或已准备好充足首付及还贷能力。", score: 4 },
-            { text: "B. 还在积累中，但有明确可行的买房储蓄计划，能共同承担。", score: 3 },
-            { text: "C. 没有房车，且认为“租房也挺好”，或指望掏空父母钱包。", score: 2 },
-            { text: "D. 不仅没有任何硬资产，还有非良性负债（网贷、消费贷等）。", score: 1 }
+        { id: 2, dimIndex: 0, q: "关于房车和存款，TA的实际情况是：", options: [
+            { text: "A. 有房有车（或准备好了充足的首付），能给你绝对的物质安全感。", score: 5 },
+            { text: "B. 还在攒钱中，但有极其可行的买房/理财计划，两人能一起努力。", score: 4 },
+            { text: "C. 没啥资产，觉得租房也行，或者单纯指望掏空父母的钱包。", score: 3 },
+            { text: "D. 不仅没资产，还有网贷、信用卡透支等隐形窟窿。", score: 2 },
+            { text: "E. 严重负债，且毫无还款能力，甚至想忽悠你的钱去填坑。", score: 1 }
         ]},
-        { id: 3, dimIndex: 0, q: "TA的日常消费观和财务习惯是怎样的？", options: [
-            { text: "A. 有清晰的理财规划，量入为出，抗风险能力极强。", score: 4 },
-            { text: "B. 偶尔冲动消费，但总体可控，不影响正常生活。", score: 3 },
-            { text: "C. 典型的“月光族”，遇到急事完全拿不出钱。", score: 2 },
-            { text: "D. 极度抠门（对你苛刻），或极度挥霍（自己透支消费）。", score: 1 }
+        { id: 3, dimIndex: 0, q: "TA的日常花钱习惯是怎样的？", options: [
+            { text: "A. 懂理财，有存款，钱花在刀刃上，抗风险能力极强。", score: 5 },
+            { text: "B. 正常消费，偶尔冲动买点贵的，但绝不会影响生活质量。", score: 4 },
+            { text: "C. 典型的“月光族”，赚多少花多少，真遇上急事掏不出一分钱。", score: 3 },
+            { text: "D. 对自己挺大方，对你却很苛刻；或者两人在一起时极其抠门算计。", score: 2 },
+            { text: "E. 挥霍无度，为了面子或享乐疯狂透支，是个填不满的无底洞。", score: 1 }
         ]},
         { id: 4, dimIndex: 0, q: "TA在你身上花钱的态度是：", options: [
-            { text: "A. 非常慷慨，能力范围内总想给你最好的，有仪式感。", score: 4 },
-            { text: "B. 比较大方，日常开销不计较，大件物品会商量着买。", score: 3 },
-            { text: "C. 算得很清楚，哪怕几十块钱的外卖也经常暗示要AA。", score: 2 },
-            { text: "D. 经常向你哭穷，甚至要求你为TA的高额消费买单。", score: 1 }
+            { text: "A. 非常大方，总想在能力范围内给你最好的，逢年过节仪式感拉满。", score: 5 },
+            { text: "B. 挺舍得为你花钱，大件会商量，日常吃饭买东西不计较。", score: 4 },
+            { text: "C. 算得很精明，吃个饭看个电影都经常明示或暗示要跟你AA。", score: 3 },
+            { text: "D. 经常跟你哭穷，找你要贵重礼物，或者让你倒贴。", score: 2 },
+            { text: "E. 纯纯把你当提款机，明目张胆地压榨你的钱。", score: 1 }
         ]},
-        { id: 5, dimIndex: 0, q: "面对突发大额支出（如生病、意外），TA的底气是：", options: [
-            { text: "A. 有充足存款或商业保险，能从容应对遮风挡雨。", score: 4 },
-            { text: "B. 有一定存款，虽会肉痛，但能硬撑着拿出钱解决。", score: 3 },
-            { text: "C. 毫无抗风险能力，遇到大事只能四处借钱。", score: 2 },
-            { text: "D. 没钱还会抱怨逃避，甚至把压力甩锅给你。", score: 1 }
+        { id: 5, dimIndex: 0, q: "万一遇到突发急事（比如生大病、意外失业），TA的反应是：", options: [
+            { text: "A. 有充足存款或保险，遇事极其冷静，能替你兜底遮风挡雨。", score: 5 },
+            { text: "B. 咬咬牙也能顶上，会积极想办法凑钱或找路子解决问题。", score: 4 },
+            { text: "C. 遇到事就懵了，双手一摊，只能靠你或者找父母求救。", score: 3 },
+            { text: "D. 满腹牢骚，拖延逃避，甚至把经济压力全推到你头上。", score: 2 },
+            { text: "E. 大难临头各自飞，连夜跑路或者直接玩消失。", score: 1 }
         ]},
-        { id: 6, dimIndex: 1, q: "当你受委屈向TA倾诉时，TA的反应是：", options: [
-            { text: "A. 认真倾听，先安抚情绪，再帮你分析解决问题。", score: 4 },
-            { text: "B. 会安慰几句，但很快试图讲大道理。", score: 3 },
-            { text: "C. 心不在焉，边看手机边敷衍地“嗯、啊”。", score: 2 },
-            { text: "D. 极度不耐烦，甚至反向指责你“天天抱怨烦不烦”。", score: 1 }
+        { id: 6, dimIndex: 1, q: "当你受委屈向TA疯狂吐槽抱怨时，TA的反应是：", options: [
+            { text: "A. 立刻放下手机，先抱抱你安抚情绪，等你冷静了再帮你出主意。", score: 5 },
+            { text: "B. 会安慰你几句，但经常犯直男/直女思维，很快就开始跟你讲大道理。", score: 4 },
+            { text: "C. 边玩手机边敷衍你：“嗯嗯、啊、别想太多了。”", score: 3 },
+            { text: "D. 觉得你很烦：“多大点事啊，你至于天天说吗？”", score: 2 },
+            { text: "E. 倒打一耙，反过来凶你：“还不都是你自己的问题！”", score: 1 }
         ]},
-        { id: 7, dimIndex: 1, q: "日常相处中，TA对你的用心程度如何？", options: [
-            { text: "A. 细节控，能敏锐察觉情绪变化，记住你的喜好。", score: 4 },
-            { text: "B. 总体比较关心，偶尔粗心大意，提醒后会改正。", score: 3 },
-            { text: "C. 极其自我，永远把自己的感受排在第一位。", score: 2 },
-            { text: "D. 漠不关心，连重要的纪念日都经常“忘记”。", score: 1 }
+        { id: 7, dimIndex: 1, q: "日常相处中，TA对你的细节关注度怎么样？", options: [
+            { text: "A. 细节狂魔，一眼看穿你的不开心，牢记你的喜好和随口说的话。", score: 5 },
+            { text: "B. 整体挺关心的，偶尔有点粗心大意，但你一提醒立马就改。", score: 4 },
+            { text: "C. 比较自私，永远把自己放第一位，只有TA需要你时才对你热情。", score: 3 },
+            { text: "D. 漠不关心，连你的生日、重要的纪念日都经常忘得一干二净。", score: 2 },
+            { text: "E. 彻底无视你的感受，哪怕你生病发烧，TA都能在旁边安心打游戏。", score: 1 }
         ]},
-        { id: 8, dimIndex: 1, q: "你们之间的亲密互动（非生理需求）频率如何？", options: [
-            { text: "A. 经常有牵手、拥抱等亲昵动作，感觉被浓烈爱着。", score: 4 },
-            { text: "B. 互动正常，总体让人感到踏实舒适。", score: 3 },
-            { text: "C. 几乎没有日常身体接触，像极了“合租室友”。", score: 2 },
-            { text: "D. 抗拒日常亲近，且在关系中极度自私，不顾及你的体验。", score: 1 }
+        { id: 8, dimIndex: 1, q: "你们平时的亲密肢体接触（非生理需求）多吗？", options: [
+            { text: "A. 经常牵手、拥抱、贴贴，让你感觉被浓烈地爱着。", score: 5 },
+            { text: "B. 互动很正常，像老夫老妻一样，总体感觉很自然踏实。", score: 4 },
+            { text: "C. 很少碰你，平时各玩各的手机，相处起来像极了“合租室友”。", score: 3 },
+            { text: "D. 你主动去抱TA，TA会下意识躲开或者表现出嫌弃。", score: 2 },
+            { text: "E. 平时极度抗拒亲近，只有在TA想解决生理需求时才会碰你。", score: 1 }
         ]},
-        { id: 9, dimIndex: 1, q: "当TA的朋友或家人在场时，TA是如何对待你的？", options: [
-            { text: "A. 大方介绍，极度护短，分歧时坚定挡在你前面。", score: 4 },
-            { text: "B. 表现自然，偶尔照顾不到你，事后会解释安抚。", score: 3 },
-            { text: "C. “窝里横，外面装”，在外人面前呼来喝去彰显自己。", score: 2 },
-            { text: "D. 故意隐瞒你的身份，或纵容亲友对你开恶劣玩笑。", score: 1 }
+        { id: 9, dimIndex: 1, q: "当TA的朋友或家人在场时，TA是怎么对你的？", options: [
+            { text: "A. 大大方方炫耀你，极度护短，别人要是敢说你一句TA必翻脸。", score: 5 },
+            { text: "B. 表现挺自然的，偶尔人多顾不上你，但事后会赶紧哄你。", score: 4 },
+            { text: "C. 窝里横，在外人面前故意冷落你、或者使唤你来显摆TA的地位。", score: 3 },
+            { text: "D. 故意隐瞒你是男/女朋友的身份，对外强行装单身。", score: 2 },
+            { text: "E. 跟着外人或TA家里人一起贬低你、嘲笑你、打压你。", score: 1 }
         ]},
-        { id: 10, dimIndex: 1, q: "异地或不能见面时，TA的联系习惯是：", options: [
-            { text: "A. 主动分享日常，事事有回应，给足安全感。", score: 4 },
-            { text: "B. 每天基本会联系，能随时找到人。", score: 3 },
-            { text: "C. 经常失联几小时，事后总以“太忙”为借口。", score: 2 },
-            { text: "D. 动不动玩失踪，断联冷战，让你陷入内耗。", score: 1 }
+        { id: 10, dimIndex: 1, q: "异地或者平时上班见不到面时，TA的聊天习惯是：", options: [
+            { text: "A. 事事有回应，主动报备日常，就算异地也能给足你安全感。", score: 5 },
+            { text: "B. 每天都会聊天，虽然有时候话不多，但你随时都能找到人。", score: 4 },
+            { text: "C. 经常几个小时不回消息，问就是“在忙”、“没看手机”。", score: 3 },
+            { text: "D. 动不动就玩失踪，让你天天内耗，猜TA到底在干嘛。", score: 2 },
+            { text: "E. 故意断联冷战，用“不理你”来惩罚你、折磨你。", score: 1 }
         ]},
-        { id: 11, dimIndex: 2, q: "发生激烈争吵时，TA展现出的底线是：", options: [
-            { text: "A. 内核稳定，不翻旧账，不进行人身攻击。", score: 4 },
-            { text: "B. 虽会上头，但在你掉眼泪或表达受伤后会停下来。", score: 3 },
-            { text: "C. 擅长“冷暴力”，拒绝沟通，等你先低头。", score: 2 },
-            { text: "D. 情绪易失控，摔东西、辱骂，甚至有动手倾向。", score: 1 }
+        { id: 11, dimIndex: 2, q: "两人爆发激烈争吵时，TA的底线在哪？", options: [
+            { text: "A. 绝不吼叫，就事论事，绝对不翻旧账，不骂脏话。", score: 5 },
+            { text: "B. 会上头生气，但一旦看到你哭了或者很难受，会立刻停下来。", score: 4 },
+            { text: "C. 极其擅长“冷暴力”，你不低头TA能憋一个月不理你。", score: 3 },
+            { text: "D. 情绪极容易失控，骂人极度难听，甚至会砸东西泄愤。", score: 2 },
+            { text: "E. 有推搡、动手倾向，或者用自残跳楼来威胁你。", score: 1 }
         ]},
-        { id: 12, dimIndex: 2, q: "吵架后的“修复期”，TA通常怎么做？", options: [
-            { text: "A. 主动找台阶，真诚道歉并复盘，提供解决方案。", score: 4 },
-            { text: "B. 会开玩笑糊弄过去，虽避重就轻但愿意和好。", score: 3 },
-            { text: "C. 死鸭子嘴硬绝不认错，甚至反指责你。", score: 2 },
-            { text: "D. 极度记仇，把每次吵架记下来时不时翻旧账。", score: 1 }
+        { id: 12, dimIndex: 2, q: "吵完架之后的“和好期”，TA一般会怎么做？", options: [
+            { text: "A. 主动找台阶，真诚道歉并跟你复盘，商量以后怎么避免，且真的会改。", score: 5 },
+            { text: "B. 不太会深聊，但会嬉皮笑脸或者买个小礼物主动求和，愿意翻篇。", score: 4 },
+            { text: "C. 死鸭子嘴硬绝不认错，最多装作无事发生跟你讲话。", score: 3 },
+            { text: "D. 极其记仇，把陈芝麻烂谷子的事全都记在一个本子上，随时拿出来恶心你。", score: 2 },
+            { text: "E. 疯狂给你洗脑（PUA），颠倒黑白，最后逼得你流着泪向TA认错。", score: 1 }
         ]},
-        { id: 13, dimIndex: 2, q: "当TA自己遇到重大挫折（失业、亏损）时：", options: [
-            { text: "A. 短暂低落后能迅速调整，展现极强韧性找寻出路。", score: 4 },
-            { text: "B. 会向你倒苦水，但基本能维持正常生活节奏。", score: 3 },
-            { text: "C. 彻底崩溃，长时间萎靡不振，负能量全排泄给你。", score: 2 },
-            { text: "D. 将失败归咎外界，靠酗酒、网游等极度逃避现实。", score: 1 }
+        { id: 13, dimIndex: 2, q: "如果TA自己遇到了大挫折（比如失业、亏大钱），TA的状态是：", options: [
+            { text: "A. 难过一会儿就能重新振作，展现出超强韧性，自己找门路翻盘。", score: 5 },
+            { text: "B. 会向你倒苦水求安慰，但生活的基本节奏还能维持正常。", score: 4 },
+            { text: "C. 彻底颓废，天天躺尸，把负能量全当垃圾一样倒给你。", score: 3 },
+            { text: "D. 怨天尤人，觉得全天下都欠TA的，脾气变得极差，逮谁咬谁。", score: 2 },
+            { text: "E. 靠酗酒、赌博、沉迷网游逃避现实，彻底烂泥扶不上墙。", score: 1 }
         ]},
-        { id: 14, dimIndex: 2, q: "TA的日常情绪状态是怎样的？", options: [
-            { text: "A. 开朗温和，自带高正能量，能治愈你的不开心。", score: 4 },
-            { text: "B. 大部分平稳，偶尔有小脾气但很好哄。", score: 3 },
-            { text: "C. 高敏感且多疑，常因小事陷入内耗让你压抑。", score: 2 },
-            { text: "D. 情绪像过山车，喜怒无常，你在旁边总小心翼翼。", score: 1 }
+        { id: 14, dimIndex: 2, q: "TA平时的日常情绪像什么？", options: [
+            { text: "A. 阳光小太阳，每天乐呵呵的，能治愈你的焦虑。", score: 5 },
+            { text: "B. 大部分时候平稳，偶尔发点小脾气，顺着毛哄两句就好。", score: 4 },
+            { text: "C. 敏感多疑，动不动就闷闷不乐，让你觉得气氛很压抑。", score: 3 },
+            { text: "D. 情绪过山车，上一秒笑下一秒炸，你在TA身边步步惊心。", score: 2 },
+            { text: "E. 暴戾阴沉，就像个定时炸弹，你甚至有点害怕TA。", score: 1 }
         ]},
-        { id: 15, dimIndex: 2, q: "面对两人意见不合的重要决策时，TA倾向于：", options: [
-            { text: "A. 尊重你的意见，权衡利弊寻找折中方案。", score: 4 },
-            { text: "B. 努力说服你，但如果你的理由充分TA愿意妥协。", score: 3 },
-            { text: "C. 表面答应，背地里按自己的意思办，擅自做主。", score: 2 },
-            { text: "D. 极端独裁（“不想过就分手”）。", score: 1 }
+        { id: 15, dimIndex: 2, q: "面对两人意见不合的大事时，TA会怎么办？", options: [
+            { text: "A. 凡事跟你商量，尊重你的意见，一定要找一个两人都舒服的方案。", score: 5 },
+            { text: "B. 会努力说服你，但如果你的理由更充分，TA最终愿意让步。", score: 4 },
+            { text: "C. 表面答应你，背地里却按自己的意思办，先斩后奏。", score: 3 },
+            { text: "D. 极度大男子/大女子主义，什么事都必须是TA说了算。", score: 2 },
+            { text: "E. 独裁暴君，你不听TA的，TA就用分手或发疯来威胁你。", score: 1 }
         ]},
-        { id: 16, dimIndex: 3, q: "对于你的事业发展或个人提升，TA的态度是：", options: [
-            { text: "A. 鼎力支持，愿意提供资金/人脉，或包揽家务。", score: 4 },
-            { text: "B. 不干涉，觉得你开心就好，能提供口头鼓励。", score: 3 },
-            { text: "C. 觉得搞事业没用，经常泼冷水打压积极性。", score: 2 },
-            { text: "D. 要求你放弃工作当全职保姆，嫉妒你比TA优秀。", score: 1 }
+        { id: 16, dimIndex: 3, q: "对你的工作、考研或个人提升，TA是什么态度？", options: [
+            { text: "A. 你的头号粉丝。出钱出力出人脉，甚至包揽家务支持你搞事业。", score: 5 },
+            { text: "B. 不怎么插手，但会口头鼓励你：“只要你开心就行。”", score: 4 },
+            { text: "C. 经常泼冷水：“折腾这干嘛，又赚不到几个钱。”", score: 3 },
+            { text: "D. 见不得你好，潜意识嫉妒你，怕你变优秀了脱离TA的掌控。", score: 2 },
+            { text: "E. 强迫你辞职/退学，企图把你圈在家里当免费保姆和附属品。", score: 1 }
         ]},
-        { id: 17, dimIndex: 3, q: "日常家务的分配模式是：", options: [
-            { text: "A. 眼里有活，主动承担一半甚至更多，认为是本分。", score: 4 },
-            { text: "B. 拨一下动一下，你分配任务会做，缺乏主动。", score: 3 },
-            { text: "C. 偶尔做一次就炫耀，平时当甩手掌柜（丧偶式）。", score: 2 },
-            { text: "D. 理直气壮认为“家务就是你的事”，心安理得享受。", score: 1 }
+        { id: 17, dimIndex: 3, q: "你们家务活是怎么分配的？", options: [
+            { text: "A. 眼里有活，主动干一半以上的家务，觉得这是共同生活的本分。", score: 5 },
+            { text: "B. 算不上勤快，但你喊TA干啥TA就干啥，虽然像个算盘珠子拨一下动一下。", score: 4 },
+            { text: "C. 典型的“丧偶式”，平时不动手，偶尔洗个碗恨不得发朋友圈炫耀。", score: 3 },
+            { text: "D. 觉得家务天生就是你的事，平时把家里弄得乱七八糟还要你收拾。", score: 2 },
+            { text: "E. 纯大爷/祖宗做派，不仅不干活，还天天挑剔你这没弄好那没弄好。", score: 1 }
         ]},
-        { id: 18, dimIndex: 3, q: "你们对未来生活的蓝图匹配度如何？", options: [
-            { text: "A. 核心价值观一致，已把你规划进未来并切实努力。", score: 4 },
-            { text: "B. 大方向一致，某些细节在磨合但不构成根本矛盾。", score: 3 },
-            { text: "C. 回避未来话题，一提起规划就用“顺其自然”敷衍。", score: 2 },
-            { text: "D. 观念存在不可调和的死局，且不愿让步。", score: 1 }
+        { id: 18, dimIndex: 3, q: "你们对未来（结婚、生子、定居等）的规划合拍吗？", options: [
+            { text: "A. 核心目标高度一致，规划里全是你，而且正在为未来拼命努力。", score: 5 },
+            { text: "B. 大方向差不多，有些细节还在磨合，但不影响踏实过日子。", score: 4 },
+            { text: "C. 一提未来就打太极：“顺其自然吧”、“以后再说”，敷衍拖延。", score: 3 },
+            { text: "D. 核心观念完全相反（比如你要结婚TA死活不结），死耗着不让步。", score: 2 },
+            { text: "E. 从来没想过跟你有未来，现在只是把你当过渡期的消遣。", score: 1 }
         ]},
-        { id: 19, dimIndex: 3, q: "和TA在一起之后，你对自己和生活的感觉是：", options: [
-            { text: "A. 变得更自信漂亮，感觉世界充满光亮（被滋养）。", score: 4 },
-            { text: "B. 没什么太大起伏，但生活多了一份安稳的陪伴。", score: 3 },
-            { text: "C. 常陷入自我怀疑焦虑，感觉精力被抽干越来越憔悴。", score: 2 },
-            { text: "D. 完全失去了自我，身心状态断崖式衰落。", score: 1 }
+        { id: 19, dimIndex: 3, q: "和TA在一起之后，你感觉自己的状态怎么样？", options: [
+            { text: "A. 变得更自信好看了，整个人闪闪发光，感觉被狠狠滋养了。", score: 5 },
+            { text: "B. 没太大变化，但生活多了一个踏实的伴儿，挺安心的。", score: 4 },
+            { text: "C. 经常内耗焦虑，感觉精力被抽干，好像变丑、变憔悴了。", score: 3 },
+            { text: "D. 严重自我怀疑，觉得自己什么都做不好，全靠对方不嫌弃。", score: 2 },
+            { text: "E. 彻底抑郁崩溃，失去了原本的社交和快乐，每天都在掉眼泪。", score: 1 }
         ]},
-        { id: 20, dimIndex: 3, q: "当你面临提升自己的机会（如进修、健身）时：", options: [
-            { text: "A. 督促并陪伴你一起进步，形成良性循环。", score: 4 },
-            { text: "B. 不参与但不反对，愿意给你留出独处时间。", score: 3 },
-            { text: "C. 觉得你在瞎折腾，经常阴阳怪气冷嘲热讽。", score: 2 },
-            { text: "D. 充满控制欲，不准你社交，试图斩断圈子孤立你。", score: 1 }
+        { id: 20, dimIndex: 3, q: "当你想去交新朋友，或者培养个新爱好（如健身、跳舞）时：", options: [
+            { text: "A. 陪你一起去玩，或者极力鼓励你去交新朋友、变得更好。", score: 5 },
+            { text: "B. 自己不参与，但给你绝对的自由和独处时间。", score: 4 },
+            { text: "C. 觉得你在浪费钱和时间，总在旁边阴阳怪气扫你的兴。", score: 3 },
+            { text: "D. 查手机、管门禁，不想让你见除了TA以外的任何人。", score: 2 },
+            { text: "E. 故意挑拨你和家人、闺蜜/哥们的关系，企图把你彻底孤立。", score: 1 }
         ]},
-        { id: 21, dimIndex: 4, isVeto: true, vetoReason: "毫无异性边界感 (存在背叛/聊骚前科)", q: "TA在与异性相处时的“边界感”如何？", options: [
-            { text: "A. 主动保持安全距离，果断拒绝暧昧并向你报备。", score: 4 },
-            { text: "B. 有基本分寸，不单独约会，无暧昧信息。", score: 3 },
-            { text: "C. 经常认“知己”，你吃醋TA就指责你“无理取闹”。", score: 2 },
-            { text: "D. 实锤过背叛行为，或手机常备猎艳软件。", score: 1 }
+        { id: 21, dimIndex: 4, isVeto: true, vetoReason: "实锤的出轨、聊骚、买春史，或保留交友软件。", q: "TA跟其他异性相处时的“边界感”如何？", options: [
+            { text: "A. 绝对清白，主动避嫌，连副驾都不让别的异性坐，事事报备。", score: 5 },
+            { text: "B. 正常社交，不会单独跟异性出去，聊天记录光明坦荡。", score: 4 },
+            { text: "C. 喜欢认哥哥/妹妹/红颜知己，你一吃醋TA就嫌你小心眼。", score: 3 },
+            { text: "D. 经常在网上乱撩，或者跟前任不清不楚，被你抓包过暧昧。", score: 2 },
+            { text: "E. 有实锤的出轨/聊骚/买春史，或手机里常备交友约P软件。", score: 1 }
         ]},
-        { id: 22, dimIndex: 4, isVeto: true, vetoReason: "触碰道德红线 (沾染不良嗜好/暴力倾向)", q: "关于不良嗜好，TA的实际情况是：", options: [
-            { text: "A. 极其自律，绝对不沾染任何破坏底线的恶习。", score: 4 },
-            { text: "B. 偶尔应酬，在关键时期能狠心控制。", score: 3 },
-            { text: "C. 沉迷极度消耗时间/金钱的爱好（重度网游、打牌）。", score: 2 },
-            { text: "D. 沾染严重恶习，或有屡教不改的暴力前科。", score: 1 }
+        { id: 22, dimIndex: 4, isVeto: true, vetoReason: "沾染黄、赌、毒，或有家暴/犯罪前科。", q: "TA有没有什么不良嗜好？", options: [
+            { text: "A. 极度自律，爱惜身体和羽毛，没有任何烧钱或伤身的恶习。", score: 5 },
+            { text: "B. 偶尔抽烟喝酒打打游戏，但绝对知道分寸，绝不过量。", score: 4 },
+            { text: "C. 严重沉迷游戏/短视频/去酒吧，把时间、精力和钱全砸在上面。", score: 3 },
+            { text: "D. 经常喝得烂醉耍酒疯，或者因为爱好搞出过一堆负债。", score: 2 },
+            { text: "E. 沾染黄、赌、毒，或者哪怕只有一次的家暴/犯罪前科。", score: 1 }
         ]},
-        { id: 23, dimIndex: 4, isVeto: true, vetoReason: "极度缺乏责任感 (习惯性撒谎/遇事甩锅)", q: "遇到需要承担责任的事情时，TA的反应是：", options: [
-            { text: "A. 敢作敢当，第一时间想办法弥补损失保护你。", score: 4 },
-            { text: "B. 虽本能退缩，但在要求下还是会硬着头皮承担。", score: 3 },
-            { text: "C. 满嘴跑火车，承诺从不兑现，毫无契约精神。", score: 2 },
-            { text: "D. 习惯性撒谎甩锅，关键时刻推你出去挡枪。", score: 1 }
+        { id: 23, dimIndex: 4, isVeto: true, vetoReason: "极度自私，关键时刻推伴侣出去挡枪背黑锅。", q: "遇到大事或者需要担责任的时候，TA的第一反应是：", options: [
+            { text: "A. 敢作敢当，第一时间冲在前面解决问题，把你护在身后。", score: 5 },
+            { text: "B. 本能会有点退缩害怕，但在你的要求下，还是会硬着头皮去扛。", score: 4 },
+            { text: "C. 满嘴跑火车，答应的事从来做不到，毫无信誉可言。", score: 3 },
+            { text: "D. 一出事就装死逃避，全靠你跟在屁股后面给TA擦屁股。", score: 2 },
+            { text: "E. 极度自私，关键时刻毫不犹豫把你推出去挡枪、背黑锅。", score: 1 }
         ]},
-        { id: 24, dimIndex: 4, isVeto: true, vetoReason: "原生家庭严重拖累 (无底洞/极端妈宝)", q: "TA与原生家庭的关系和边界是：", options: [
-            { text: "A. 经济人格独立，拎得清，小家庭利益排第一。", score: 4 },
-            { text: "B. 长辈偶尔干涉，但关键时刻能护着你。", score: 3 },
-            { text: "C. 缺乏主见，凡事听家里的，长辈指责你时TA装死。", score: 2 },
-            { text: "D. 原生家庭是无底洞，TA甘之如饴并拉你下水。", score: 1 }
+        { id: 24, dimIndex: 4, isVeto: true, vetoReason: "原生家庭是无底洞，逼迫伴侣共同填坑。", q: "TA和TA父母（原生家庭）的关系是怎样的？", options: [
+            { text: "A. 经济和人格绝对独立，坚定认为“咱们俩的小家庭永远排第一位”。", score: 5 },
+            { text: "B. 父母偶尔会来干涉，但在大是大非面前，TA能站出来护着你。", score: 4 },
+            { text: "C. 纯种妈宝男/扶弟魔，凡事“我妈说”、“我家里说”，毫无主见。", score: 3 },
+            { text: "D. 家里人欺负你的时候，TA装聋作哑，甚至帮你家里人一起说你。", score: 2 },
+            { text: "E. 原生家庭是个填不满的无底洞，TA还逼你一起拿钱去填坑。", score: 1 }
         ]},
-        { id: 25, dimIndex: 4, isVeto: true, vetoReason: "底层品性恶劣 (极度自私/有虐待弱者倾向)", q: "观察TA对待弱者（如服务员、外卖员）的态度：", options: [
-            { text: "A. 骨子里的善良，懂得换位思考，充满尊重。", score: 4 },
-            { text: "B. 态度平淡，正常对待，不惹事。", score: 3 },
-            { text: "C. 精致利己，对有用人谄媚，对无用人冷漠算计。", score: 2 },
-            { text: "D. 狂妄优越感，大呼小叫，或有虐待动物倾向。", score: 1 }
+        { id: 25, dimIndex: 4, isVeto: true, vetoReason: "具有虐待弱者倾向或反社会戾气。", q: "当TA面对比自己弱的人（如服务员、外卖员、流浪动物）时，态度是：", options: [
+            { text: "A. 骨子里的善良，对谁都很客气，有同理心，会心疼弱者。", score: 5 },
+            { text: "B. 正常人态度，不热络也不刁难，秉持多一事不如少一事。", score: 4 },
+            { text: "C. 精致利己，对领导有钱人疯狂谄媚，对普通人冷漠算计。", score: 3 },
+            { text: "D. 嫌贫爱富，优越感爆棚，喜欢对着服务员大呼小叫装大爷。", score: 2 },
+            { text: "E. 有虐待小动物的倾向，或者看谁都不顺眼，充满反社会戾气。", score: 1 }
         ]}
     ];
 
     let shuffledQuestions = [];
 
-    // 洗牌算法
     function shuffleArray(array) {
         let newArray = [...array];
         for (let i = newArray.length - 1; i > 0; i--) {
@@ -474,7 +484,7 @@
                 btn.disabled = false;
             }
         } catch (error) {
-            // 开发阶段/本地测试如果没有后端，取消下面注释可直接进入
+            // 本地测试可以直接解除注释跳过验证
             // document.getElementById('auth-screen').style.display = 'none';
             // document.getElementById('quiz-screen').style.display = 'block';
             // renderQuestions();
@@ -506,18 +516,14 @@
         });
     }
 
-    // 处理点选交互：选中高亮 + 自动滚动到下一题
     function handleSelect(labelElement, currentIndex) {
-        // 移除同级其他label的选中样式 (兼容不支持:has的浏览器)
         const siblings = labelElement.parentElement.querySelectorAll('.option-label');
         siblings.forEach(el => el.classList.remove('selected'));
         labelElement.classList.add('selected');
         
-        // 移除未答题红框警告
         const qBlock = document.getElementById(`q-block-${currentIndex}`);
         if(qBlock) qBlock.classList.remove('error-highlight');
 
-        // 延迟200ms自动平滑滚动到下一题
         setTimeout(() => {
             const nextBlock = document.getElementById(`q-block-${currentIndex + 1}`);
             if (nextBlock) {
@@ -543,6 +549,7 @@
                     g_totalScore += score;
                     g_dimScores[item.dimIndex] += score;
                     answered = true;
+                    // 一票否决逻辑：选了E（得分为1）
                     if (item.isVeto && score === 1) {
                         g_veto = true;
                         g_vetoReasons.push(item.vetoReason);
@@ -555,19 +562,17 @@
             }
         }
 
-        // 如果有未答的题，定位并标红提示
         if (firstUnansweredIndex !== -1) {
             const targetBlock = document.getElementById(`q-block-${firstUnansweredIndex}`);
             targetBlock.classList.add('error-highlight');
             targetBlock.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            // 小震动动画体验更好
-            setTimeout(() => alert(`您还有题目未作答，已为您自动定位到第 ${firstUnansweredIndex + 1} 题。`), 300);
+            setTimeout(() => alert(`您还有题目未作答，已为您定位到第 ${firstUnansweredIndex + 1} 题。`), 300);
             return;
         }
 
         const submitBtn = document.getElementById('submitBtn');
         submitBtn.disabled = true;
-        submitBtn.innerText = "数据处理中...";
+        submitBtn.innerText = "数据提取中...";
 
         document.getElementById('quiz-screen').style.display = 'none';
         document.getElementById('loading-screen').style.display = 'block';
@@ -578,7 +583,7 @@
     function simulateLoading() {
         const fill = document.getElementById('progress-fill');
         const text = document.getElementById('loading-text');
-        const stages = ["正在汇总问卷数据...", "进行行为学模式比对...", "提取底层特征模型...", "计算综合百分比...", "生成最终专属报告..."];
+        const stages = ["正在汇总问卷数据...", "进行行为学模式比对...", "提取底层特征模型...", "计算综合百分比...", "生成最终诊断报告..."];
         let progress = 0, stageIndex = 0;
         
         let interval = setInterval(() => {
@@ -598,13 +603,13 @@
         }, 100); 
     }
 
+    // 百分比平滑换算：25到125分的非线性缩放
     function calculatePercentile(score) {
         if (g_veto) return 0.1; 
-        if (score <= 35) return Math.max(1, score - 20); 
-        if (score >= 90) return 96 + (score - 90) * 0.3; 
-        if (score >= 75) return 75 + (score - 75) * 1.4; 
-        if (score >= 60) return 30 + (score - 60) * 3;   
-        return Math.max(5, (score - 25)); 
+        if (score < 70) return Math.max(0.1, ((score - 25) / 45) * 30);
+        if (score < 90) return 30 + ((score - 70) / 20) * 40;
+        if (score < 110) return 70 + ((score - 90) / 20) * 25;
+        return Math.min(99.9, 95 + ((score - 110) / 15) * 4.9);
     }
 
     function showResults() {
@@ -621,18 +626,17 @@
         if (g_veto) {
             scoreBox.style.borderColor = "#ffcdd2";
             scoreBox.style.backgroundColor = "#fff5f5";
-            scoreValue.innerHTML = "<span style='font-size:28px;'>🚫 底线崩塌·强制清零</span>";
+            scoreValue.innerHTML = "<span style='font-size:28px;'>🚫 熔断机制·强制清零</span>";
             scoreValue.style.color = "#d32f2f";
-            pctText.innerText = `⚠️ 极度危险：实际价值跌破底盘 (不足 1%)`;
+            pctText.innerText = `⚠️ 极度危险：实际价值跌破底盘 (击败 0.1% 样本)`;
             pctText.style.color = "#d32f2f";
             pctText.style.background = "#ffebee";
-            radarTitle.innerText = "【 ⚠️ 触发致命红线：五维矩阵已崩塌 】";
+            radarTitle.innerText = "【 ⚠️ 触发熔断红线：五维矩阵已崩塌 】";
             radarTitle.style.color = "#d32f2f";
-            chartScore = 25; 
+            chartScore = 25; // 强制图表点归零（底线25分）
         } else {
             scoreValue.innerText = g_totalScore;
-            
-            if (g_totalScore >= 75) {
+            if (g_totalScore >= 90) {
                 pctText.innerText = `🔥 综合评价超越了 ${percentile}% 的样本组`;
             } else {
                 pctText.innerText = `综合评价超越了 ${percentile}% 的样本组`;
@@ -651,34 +655,36 @@
         if (g_veto) {
             let reasonsHtml = g_vetoReasons.map(r => `<li>${r}</li>`).join('');
             report.innerHTML = `
-                <h3 style="color:#d32f2f;">🚨 【高危预警】虚假的高分 / 高风险对象</h3>
-                <p><strong>⚠️ 一票否决触发：</strong>无论TA其TA方面表现多好，系统检测到TA在【人品与底线】触碰了不可饶恕的红线。在心理学评估中，<strong>底线=0，则一切皆为0</strong>。</p>
+                <h3 style="color:#d32f2f;">🚨 【极高危/强制熔断区】快跑！这是反社会与暗黑人格预警！</h3>
+                <p><strong>⚠️ 熔断规则触发：</strong>系统判定：无论TA得多少分，无论TA多有钱、长得多好看，请立刻跑路！</p>
                 <div class="fatal-warning-box">
-                    <h4>⛔ 系统已锁定以下致命缺陷：</h4>
+                    <h4>⛔ 扫描锁定以下致命缺陷：</h4>
                     <ul>${reasonsHtml}</ul>
                 </div>
-                <p><strong>深度剖析：</strong>这种特质极具迷惑性，但本身就是生活中的高危风险。继续维持，个人的情绪、财产甚至安全都可能受到剥削。</p>
-                <p><strong>【核心建议】：</strong><br>1. 丢掉幻想：核心品性极难改变。<br>2. 及时止损：尽早剥离财务和情感纠葛。<br>3. 物理隔绝：准备好安全边界，保护自己。</p>`;
+                <p><strong>深度解析：</strong>TA在核心人格层面存在不可逆的严重缺陷，极大可能具备“暗黑人格特质”。在TA眼里，你不是爱人，而是一个用来满足私欲、榨取资源的“工具”。TA没有真正的底线。继续留在TA身边，你的财富、自尊、甚至生命安全都会被彻底吞噬。不要有任何“我能改变TA”的圣母心，这类人天生缺乏共情能力，你感动不了TA，只会被吸干。</p>
+                <p><strong>【干预建议】：</strong>放弃沉没成本，立刻制定安全撤退计划。物理隔离，切断资金，拉黑联系方式。保命要紧！</p>`;
+        } else if (g_totalScore >= 110) {
+            report.innerHTML = "<h3>👑 【神仙伴侣】极度稀缺的人生合伙人</h3><p><strong>深度解析：</strong>恭喜你，你挖到了人类高质量伴侣的“金字塔尖”！TA具备极高的自我分化水平，情绪内核像定海神针一样稳定。既能在物质上替你遮风挡雨，又能在情绪上给你提供极其饱满的爱。TA不是通过打压你来找优越感，而是真诚地为你每一次的进步鼓掌。你们的关系不是内耗，而是强强联合的“双赢”。</p><p><strong>【干预建议】：</strong>极品伴侣是需要“保养”的，千万不要因为TA脾气好、包容度高就肆意作闹。请务必提供同等质量的双向奔赴，好好珍惜，你们绝对是别人眼里羡慕不来的神仙眷侣。</p>";
         } else if (g_totalScore >= 90) {
-            report.innerHTML = "<h3>👑 【极度稀缺】高质量人生合伙人</h3><p><strong>深度剖析：</strong>你的伴侣表现极为优异，现实底盘稳固，情绪价值拉满。TA心智成熟、内核稳定，不仅是恋人，更是能背靠背应对生活的优质战友，属于极度稀缺资源。</p><p><strong>【核心建议】：</strong><br>1. 正向反馈：不要吝啬肯定与夸奖。<br>2. 警惕过度索取：双向奔赴才能长久，避免将其视为单向提供者。<br>3. 长期规划：建议尽早进行更深度的未来利益绑定。</p>";
-        } else if (g_totalScore >= 75) {
-            report.innerHTML = "<h3>🌟 【优质适配】靠谱的长期关系对象</h3><p><strong>深度剖析：</strong>测试结果十分优良。TA非常值得托付。虽然细节可能不够完美，但底层逻辑清晰，人品底线靠得住，已具备建立幸福长久关系的坚实基础。</p><p><strong>【核心建议】：</strong><br>1. 聚焦短板沟通：参考雷达图偏低的维度，温和沟通期望。<br>2. 巩固现实基石：通过共同目标，加固现实维度的连接。<br>3. 拥抱真实：接纳不完美，好关系是磨合出来的。</p>";
-        } else if (g_totalScore >= 60) {
-            report.innerHTML = "<h3>⚠️ 【风险预警】内耗重灾区 / 需重新评估</h3><p><strong>深度剖析：</strong>关系目前处于高内耗状态，TA在某核心维度有明显短板。在这段关系里你可能经常感觉能量被过度消耗，TA暂未展现出支撑长期稳定关系的成熟度。</p><p><strong>【核心建议】：</strong><br>1. 停止过度付出：收回精力，转移到自我提升上。<br>2. 设立清晰边界：明确表达底线，观察其行动而非口头承诺。<br>3. 保持独立：随时保持财务和精神的独立。</p>";
+            report.innerHTML = "<h3>🛡️ 【优质潜力股】靠谱踏实的过日子人</h3><p><strong>深度解析：</strong>这是一段虽然有小瑕疵，但绝对值得长期持有的优质关系。TA可能不是偶像剧里完美的霸总或仙女，偶尔也会有点直男/直女的粗线条，惹你生气。但TA的核心盘极其稳固：三观端正、底线清晰、人品靠谱，而且对这段关系有着极强的责任感。TA可能不太会说甜言蜜语，但全都在用实际行动为你兜底。</p><p><strong>【干预建议】：</strong>遇到摩擦时，少用“你总是这样”来指责，多用“如果你能怎么做，我会更开心”来引导。接受TA的不完美，抓住TA“忠实、肯干”的核心，你们的日子绝对会越过越红火。</p>";
+        } else if (g_totalScore >= 70) {
+            report.innerHTML = "<h3>⚠️ 【高内耗风险区】情绪吸血鬼预备役</h3><p><strong>深度解析：</strong>危险边缘！食之无味，弃之可惜，这段关系正在疯狂抽干你的精力。TA还没烂到要立刻报警的程度，但跟TA在一起，你需要交极其昂贵的“情绪税”。TA往往极度索取情绪价值，却拒绝付出；一吵架就冷暴力或者甩锅，让你天天都在内耗、猜忌、自我怀疑。TA不是来为你遮风挡雨的，TA本身就是你生活里最大的风雨。</p><p><strong>【干预建议】：</strong>停止扮演TA的“心理医生”或者“妈/爸”！划定铁血边界线，比如“如果你再用这种态度说话，我们就不要聊了”。给自己设定一个3个月的观察期，如果TA毫无改变，建议尽早止损，别把大好青春耗在垃圾桶里。</p>";
         } else {
-            report.innerHTML = "<h3>💀 【高耗损】纯粹的消耗型关系</h3><p><strong>深度剖析：</strong>结果处于危险区域，TA在经济、情绪、人品等多个维度均呈现显著低分。这段关系的存在，对你而言是一种严重消耗，正在透支你的精力与生活质量。</p><p><strong>【核心建议】：</strong><br>1. 打消拯救情结：不要试图去改变一个极度自我的人。<br>2. 停止倒贴：立刻停止单方面的经济与情绪付出。<br>3. 寻求外部支持：与信任的朋友沟通，打破当前的依赖怪圈。</p>";
+            report.innerHTML = "<h3>🛑 【灾难性关系】纯纯的垃圾堆，请立刻止损</h3><p><strong>深度解析：</strong>毫无保留的负资产级别恋爱，继续谈下去等于慢性自杀。TA极度自我中心，对你进行全方位的剥削。没钱、脾气大、情绪极度不稳定，甚至还会通过PUA打压你，让你误以为“除了TA没人要你”。跟TA在一起后，你肉眼可见地变丑了、变焦虑了、失去自我了。TA不是在爱你，TA是在寄生你。</p><p><strong>【干预建议】：</strong>别管什么“可我们在一起好几年了”，现在走就是赚到！千万不要被TA偶尔给的一颗甜枣（比如突然下跪道歉）骗了，那只是TA怕失去免费提款机。联系你的家人朋友，立刻强行拔出这个泥潭，重获新生！</p>";
         }
     }
 
+    // 重构正态分布曲线，适用 25-125 满分体系
     let bChart = null;
     function drawBellCurve(userScore, percentile) {
         const ctx = document.getElementById('bellChart').getContext('2d');
         if (bChart) bChart.destroy();
         let labels = [], data = [], pointColors = [], pointRadii = [];
 
-        for(let i = 25; i <= 100; i++) {
+        for(let i = 25; i <= 125; i++) {
             labels.push(i);
-            let y = Math.exp(-Math.pow(i - 65, 2) / (2 * Math.pow(12, 2))) * 100; 
+            // 钟型曲线方程 (均值80, 标准差18)
+            let y = Math.exp(-Math.pow(i - 80, 2) / (2 * Math.pow(18, 2))) * 100; 
             data.push(y);
             if(i === userScore) {
                 pointColors.push('#d81b60'); pointRadii.push(6);
@@ -704,7 +710,8 @@
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
+                maintainAspectRatio: true, 
+                aspectRatio: 1.8, 
                 scales: {
                     x: { ticks: { callback: function(val, index) { return index % 10 === 0 ? labels[index] : ''; } } },
                     y: { display: false } 
@@ -714,6 +721,7 @@
         });
     }
 
+    // 重构雷达图，满分拓展为 25
     let rChart = null;
     function drawRadarChart() {
         const ctx = document.getElementById('radarChart').getContext('2d');
@@ -737,9 +745,10 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: true,
+                aspectRatio: 1, 
                 scales: {
                     r: {
-                        min: 0, max: 20,  
+                        min: 0, max: 25,  // 修改点：满分扩增到25
                         angleLines: { color: 'rgba(0,0,0,0.05)' }, grid: { color: 'rgba(0,0,0,0.05)' },
                         pointLabels: { font: { size: 12, weight: 'bold' }, color: g_veto ? '#d32f2f' : '#666' },
                         ticks: { display: false }
@@ -750,26 +759,25 @@
         });
     }
 
-    // 导生长图 PDF (添加防黑屏降级逻辑)
     async function generatePDF() {
         const btn = document.getElementById('downloadPdfBtn');
         const container = document.getElementById('mainContainer');
         
-        btn.innerText = "⏳ 正在生成高清长图，请稍候...";
+        btn.innerText = "⏳ 正在生成超清长图，请稍候...";
         btn.disabled = true;
         
-        // 关键：暂时移除毛玻璃和高级阴影，防止 iOS 微信浏览器 html2canvas 渲染崩溃/黑屏
         container.classList.add('pdf-export-mode');
         window.scrollTo(0, 0);
         btn.style.display = 'none';
 
         try {
             const canvas = await html2canvas(container, {
-                scale: 2, 
+                scale: 3, 
                 useCORS: true,
-                backgroundColor: '#fdf3f6' // 强制白底粉色避免透明黑图
+                backgroundColor: '#ffffff' 
             });
-            const imgData = canvas.toDataURL('image/jpeg', 0.95);
+            
+            const imgData = canvas.toDataURL('image/jpeg', 1.0);
             const { jsPDF } = window.jspdf;
             const pdfWidth = 210; 
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width; 
@@ -782,10 +790,9 @@
             console.error(error);
             alert("生成长图失败，可能是手机内存不足，请尝试截图保存。");
         } finally {
-            // 恢复高级 UI
             container.classList.remove('pdf-export-mode');
             btn.style.display = 'block';
-            btn.innerText = "📄 保存为长图 (PDF)";
+            btn.innerText = "📄 保存为高清长图 (PDF)";
             btn.disabled = false;
         }
     }
