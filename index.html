@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>亲密关系适配度与潜在风险深度评估量表</title>
+    <title>伴侣测试</title>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -184,14 +184,14 @@
 <body>
 
 <div class="container" id="mainContainer">
-    <h1>深度评估系统 (商用版)</h1>
-    <div class="subtitle">亲密关系适配度与潜在风险 X光透视</div>
+    <h1>伴侣测试</h1>
+    <div class="subtitle">从五个维度全面分析</div>
 
     <!-- 验证界面 -->
     <div id="auth-screen">
         <div class="disclaimer-box">
             <strong>免责声明：</strong><br>
-            本量表从现实物质、情绪价值、冲突处理、共同成长、人品底线 5 个维度，帮你用最理性的X光，彻底看透TA。测试过程完全私密，系统不记录任何信息。
+            本测试结果仅供娱乐参考，不对任何现实决策负责。测试过程完全私密，系统不会收集或记录您的任何个人信息。
         </div>
         <div class="lock-icon">🔐</div>
         <h2 style="color: var(--primary); font-size: 20px;">测试入口已锁定</h2>
@@ -226,7 +226,7 @@
         <h2 style="text-align: center; color: var(--primary); margin-bottom: 20px; font-size: 22px;">📊 专属诊断报告</h2>
         
         <div class="score-box" id="scoreBox">
-            <div style="color: var(--text-sub); font-size: 14px; font-weight: bold;">综合评估得分 (满分125)</div>
+            <div style="color: var(--text-sub); font-size: 14px; font-weight: bold;" id="scoreLabel">综合评估得分 (满分125)</div>
             <div class="score-number" id="scoreValue">0</div>
             <div class="percentile-text" id="percentileText">加载中...</div>
         </div>
@@ -267,7 +267,6 @@
         }
     });
 
-    // 核心题库已全面升级为5项、125分制、强直击痛点文案
     const rawQuestions = [
         { id: 1, dimIndex: 0, q: "TA现在的收入和工作状态怎么样？", options: [
             { text: "A. 高薪且稳定，搞钱很猛，有清晰且极其靠谱的未来搞钱规划。", score: 5 },
@@ -603,7 +602,6 @@
         }, 100); 
     }
 
-    // 百分比平滑换算：25到125分的非线性缩放
     function calculatePercentile(score) {
         if (g_veto) return 0.1; 
         if (score < 70) return Math.max(0.1, ((score - 25) / 45) * 30);
@@ -620,21 +618,28 @@
         const scoreBox = document.getElementById('scoreBox');
         const scoreValue = document.getElementById('scoreValue');
         const pctText = document.getElementById('percentileText');
-        const radarTitle = document.getElementById('radarTitle');
-        let chartScore = g_totalScore; 
+        const scoreLabel = document.getElementById('scoreLabel');
+        const chartWrappers = document.querySelectorAll('.chart-wrapper'); // 获取所有图表容器
 
         if (g_veto) {
+            // 触发底线：隐藏所有图表
+            chartWrappers.forEach(el => el.style.display = 'none');
+            
             scoreBox.style.borderColor = "#ffcdd2";
             scoreBox.style.backgroundColor = "#fff5f5";
-            scoreValue.innerHTML = "<span style='font-size:28px;'>🚫 熔断机制·强制清零</span>";
+            scoreLabel.style.display = "none"; // 隐藏“综合得分”字样
+            
+            // 显示巨大的红色禁止符号和“底线崩溃”字样
+            scoreValue.innerHTML = "<div style='font-size:72px; margin-bottom:15px; text-shadow: 0 4px 15px rgba(211,47,47,0.2);'>🚫</div><span style='font-size:32px; font-weight:900;'>底线崩溃</span>";
             scoreValue.style.color = "#d32f2f";
-            pctText.innerText = `⚠️ 极度危险：实际价值跌破底盘 (击败 0.1% 样本)`;
+            
+            pctText.innerText = `⚠️ 极高风险：已触发一票否决机制`;
             pctText.style.color = "#d32f2f";
             pctText.style.background = "#ffebee";
-            radarTitle.innerText = "【 ⚠️ 触发熔断红线：五维矩阵已崩塌 】";
-            radarTitle.style.color = "#d32f2f";
-            chartScore = 25; // 强制图表点归零（底线25分）
         } else {
+            // 正常情况：显示图表
+            chartWrappers.forEach(el => el.style.display = 'block');
+            
             scoreValue.innerText = g_totalScore;
             if (g_totalScore >= 90) {
                 pctText.innerText = `🔥 综合评价超越了 ${percentile}% 的样本组`;
@@ -643,10 +648,12 @@
                 pctText.style.background = "#f5f5f5";
                 pctText.style.color = "#666";
             }
+            
+            // 正常渲染图表
+            drawBellCurve(g_totalScore, percentile);
+            drawRadarChart();
         }
 
-        drawBellCurve(chartScore, percentile);
-        drawRadarChart();
         renderReportText();
     }
 
@@ -656,7 +663,7 @@
             let reasonsHtml = g_vetoReasons.map(r => `<li>${r}</li>`).join('');
             report.innerHTML = `
                 <h3 style="color:#d32f2f;">🚨 【极高危/强制熔断区】快跑！这是反社会与暗黑人格预警！</h3>
-                <p><strong>⚠️ 熔断规则触发：</strong>系统判定：无论TA得多少分，无论TA多有钱、长得多好看，请立刻跑路！</p>
+                <p><strong>⚠️ 熔断规则触发：</strong>系统判定：无论TA平时表现多好，请立刻跑路！</p>
                 <div class="fatal-warning-box">
                     <h4>⛔ 扫描锁定以下致命缺陷：</h4>
                     <ul>${reasonsHtml}</ul>
@@ -674,7 +681,6 @@
         }
     }
 
-    // 重构正态分布曲线，适用 25-125 满分体系
     let bChart = null;
     function drawBellCurve(userScore, percentile) {
         const ctx = document.getElementById('bellChart').getContext('2d');
@@ -683,7 +689,6 @@
 
         for(let i = 25; i <= 125; i++) {
             labels.push(i);
-            // 钟型曲线方程 (均值80, 标准差18)
             let y = Math.exp(-Math.pow(i - 80, 2) / (2 * Math.pow(18, 2))) * 100; 
             data.push(y);
             if(i === userScore) {
@@ -721,7 +726,6 @@
         });
     }
 
-    // 重构雷达图，满分拓展为 25
     let rChart = null;
     function drawRadarChart() {
         const ctx = document.getElementById('radarChart').getContext('2d');
@@ -748,7 +752,7 @@
                 aspectRatio: 1, 
                 scales: {
                     r: {
-                        min: 0, max: 25,  // 修改点：满分扩增到25
+                        min: 0, max: 25, 
                         angleLines: { color: 'rgba(0,0,0,0.05)' }, grid: { color: 'rgba(0,0,0,0.05)' },
                         pointLabels: { font: { size: 12, weight: 'bold' }, color: g_veto ? '#d32f2f' : '#666' },
                         ticks: { display: false }
