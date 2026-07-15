@@ -159,7 +159,7 @@
         }
         .chart-title { text-align: center; font-size: 15px; font-weight: bold; color: var(--text-sub); margin-bottom: 15px; }
         
-        .bell-container, .radar-container {
+        .radar-container, .scatter-container {
             position: relative; width: 100%; max-width: 400px; margin: 0 auto;
         }
 
@@ -174,6 +174,21 @@
         }
         .fatal-warning-box h4 { color: #d32f2f; margin: 0 0 10px 0; font-size: 16px; }
         .fatal-warning-box p { margin: 0 0 10px 0; color: #c62828; font-weight: normal; line-height: 1.6;}
+
+        /* 小分维度评价卡片样式 */
+        .dim-box {
+            background: #fffafa;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--primary-light);
+            border-right: 1px solid #fff0f4;
+            border-top: 1px solid #fff0f4;
+            border-bottom: 1px solid #fff0f4;
+        }
+        .dim-box h4 { margin: 0 0 8px 0; color: var(--primary); font-size: 16px;}
+        .dim-box .dim-tag { display: inline-block; background: #ffe4e9; color: var(--primary); font-size: 12px; padding: 2px 8px; border-radius: 10px; margin-left: 8px; font-weight: normal;}
+        .dim-box p { margin: 0; font-size: 14px; color: var(--text-sub); line-height: 1.6;}
 
         .copyright { position: absolute; bottom: 20px; left: 0; width: 100%; text-align: center; font-size: 12px; color: #bcaaaef0; }
 
@@ -232,16 +247,22 @@
         </div>
 
         <div class="chart-wrapper">
-            <div class="chart-title">【 大盘竞争力正态分布 】</div>
-            <div class="bell-container">
-                <canvas id="bellChart"></canvas>
-            </div>
-        </div>
-
-        <div class="chart-wrapper">
             <div class="chart-title" id="radarTitle">【 六维雷达扫描图 】</div>
             <div class="radar-container">
                 <canvas id="radarChart"></canvas>
+            </div>
+        </div>
+
+        <!-- 替换原先正态图为散点坐标系图 -->
+        <div class="chart-wrapper">
+            <div class="chart-title">【 二维关系坐标定位 】</div>
+            <div class="scatter-container">
+                <canvas id="scatterChart"></canvas>
+                <!-- 象限角标 -->
+                <div style="position:absolute; top:2%; right:2%; font-size:11px; color:#d81b60; font-weight:bold;">第一象限: 优质伴侣</div>
+                <div style="position:absolute; top:2%; left:2%; font-size:11px; color:#888;">第二象限: 理性室友</div>
+                <div style="position:absolute; bottom:6%; left:2%; font-size:11px; color:#888;">第三象限: 毒性黑洞</div>
+                <div style="position:absolute; bottom:6%; right:2%; font-size:11px; color:#888;">第四象限: 情绪巨婴</div>
             </div>
         </div>
 
@@ -281,7 +302,6 @@
 
     // 0:情绪支持度, 1:责任与承诺, 2:沟通与冲突, 3:尊重与独立, 4:亲密与连结, 5:情绪稳定
     const rawQuestions = [
-        // 第一部分：常规行为评估 (1-48)
         { id: 1, dimIndex: 0, q: "当我分享一件开心的小事时，TA会放下手机看着我回应。", options: optStd },
         { id: 2, dimIndex: 1, q: "答应过我的日常小事（如买个东西、倒垃圾），TA经常忘记或推脱。", options: optRev },
         { id: 3, dimIndex: 2, q: "当我们对某件事有分歧时，TA会努力寻找我们都能接受的折中方案。", options: optStd },
@@ -331,13 +351,12 @@
         { id: 47, dimIndex: 4, q: "除了爱情，我觉得我们也是能够无话不谈的最好朋友。", options: optStd },
         { id: 48, dimIndex: 5, q: "TA很少因为工作劳累或心情不好，就对我摆臭脸。", options: optStd },
         
-        // 第二部分：关键事件排查 (49-54)
-        { id: 49, dimIndex: -1, isVeto: true, vetoReason: "<strong>【TAG: 潜在肢体暴力/家暴倾向】</strong><br>心理学真相：暴力只有0次和无数次。摔砸物品（打断你的心爱之物）在心理学上叫做“替代性暴力”，是直接对你施暴的前奏。不要相信TA事后痛哭流涕的下跪，那是家暴循环（Honeymoon Phase）的一部分。<br>行动指南：保证人身安全，保留证据，不要正面激怒，立刻联系外界寻求庇护。", q: "【关键排查】TA是否曾经在争吵中，对你进行过任何形式的推搡、拉扯、打骂，或摔砸过物品？", options: optVeto },
-        { id: 50, dimIndex: -1, isVeto: true, vetoReason: "<strong>【TAG: 煤气灯效应/精神操纵 (Gaslighting)】</strong><br>心理学真相：这是一种极度恶劣的心理虐待。TA通过不断否定你的记忆、感知和理智，试图在精神上摧毁你、重塑你，从而达到绝对控制的目的。你没有疯，是TA在逼你疯。<br>行动指南：相信直觉，开始用录音或日记记录事实，找回你的“现实锚点”，并立即寻求心理咨询支持。", q: "【关键排查】TA是否经常让你对自己的记忆或精神状态产生怀疑（例如经常说“我根本没说过那句话，你有病吧/你记错了吧”）？", options: optVeto },
-        { id: 51, dimIndex: -1, isVeto: true, vetoReason: "<strong>【TAG: 边缘型人格倾向/极端控制】</strong><br>心理学真相：用自杀或自残来威胁不分手，是一种极度病态的情感勒索。这反映了TA内心巨大的“被抛弃恐惧”。但这种勒索会像无底洞一样吸干你，且往往具有真实的致死/致伤风险。<br>行动指南：不要因为同情或恐惧而留下。分手时必须有第三方（TA的家人、警察或朋友）在场介入，完成物理与社交的彻底隔离。", q: "【关键排查】TA是否曾用自残、自杀或极其极端的手段（如跪在地上死死抱住你的腿）来阻止你分手或离开？", options: optVeto },
-        { id: 52, dimIndex: -1, isVeto: true, vetoReason: "<strong>【TAG: 强制控制权/隔离施虐 (Coercive Control)】</strong><br>心理学真相：控制财务和社交圈，是为了剪断你的翅膀。当TA切断了你所有的外部支持系统后，你就只能任TA宰割。这是重度精神操控的核心表现。<br>行动指南：悄悄重建你的私密账户和社交联系，不要让TA知道你正在恢复独立能力，为撤离做准备。", q: "【关键排查】TA是否曾监控你的行踪、限制你的财务，或阻止你见某些特定的朋友/家人？", options: optVeto },
-        { id: 53, dimIndex: -1, isVeto: true, vetoReason: "<strong>【TAG: 极度轻蔑/末日指标】</strong><br>心理学真相：婚姻教皇约翰·戈特曼研究发现，“鄙视”是预测分手准确率最高的指标（高达93%）。荡妇羞辱、翻白眼，说明TA在心理地位上将你视作“劣等生物”，爱意已彻底死亡。<br>行动指南：停止任何“试图证明自己”的自证陷阱。离开这个剥夺你尊严的人，去那些能看到你价值的地方。", q: "【关键排查】在争吵时，TA是否曾使用侮辱性极强的词汇辱骂你，或流露出极度鄙夷的神情（如翻白眼、冷笑）？", options: optVeto },
-        { id: 54, dimIndex: -1, isVeto: true, vetoReason: "<strong>【TAG: 毁灭性成瘾】</strong><br>心理学真相：严重成瘾（黄、赌、毒、重度酒）会彻底改变大脑的神经递质系统。在成瘾物质面前，人性和爱情不堪一击。只要TA拒绝专业医疗，你的陪伴就等于“协同毁灭”。<br>行动指南：坚决切割。成瘾是医学问题，不是爱情问题，你治不了TA，只能自救。", q: "【关键排查】TA是否有严重的成瘾行为（如赌博、酗酒、药物滥用）且拒绝寻求专业治疗？", options: optVeto }
+        { id: 49, dimIndex: -1, isVeto: true, vetoReason: "<strong>【TAG: 潜在肢体暴力/家暴倾向】</strong><br>心理学真相：暴力只有0次和无数次。摔砸物品在心理学上叫做“替代性暴力”，是直接对你施暴的前奏。<br>行动指南：保证人身安全，保留证据，立刻联系外界寻求庇护。", q: "【关键排查】TA是否曾经在争吵中，对你进行过任何形式的推搡、拉扯、打骂，或摔砸过物品？", options: optVeto },
+        { id: 50, dimIndex: -1, isVeto: true, vetoReason: "<strong>【TAG: 煤气灯效应/精神操纵】</strong><br>心理学真相：这是一种极度恶劣的心理虐待。TA通过不断否定你的记忆、感知和理智，试图在精神上摧毁你、重塑你。<br>行动指南：相信直觉，开始用录音或日记记录事实，找回现实锚点，寻求支持。", q: "【关键排查】TA是否经常让你对自己的记忆或精神状态产生怀疑（如说“你有病吧/你记错了吧”）？", options: optVeto },
+        { id: 51, dimIndex: -1, isVeto: true, vetoReason: "<strong>【TAG: 边缘型人格倾向/极端控制】</strong><br>心理学真相：用自杀或自残来威胁不分手，是一种极度病态的情感勒索。这反映了TA内心巨大的“被抛弃恐惧”。<br>行动指南：不要因为同情或恐惧而留下。分手时必须有第三方在场介入，完成彻底隔离。", q: "【关键排查】TA是否曾用自残、自杀或极其极端的手段阻止你分手或离开？", options: optVeto },
+        { id: 52, dimIndex: -1, isVeto: true, vetoReason: "<strong>【TAG: 强制控制权/隔离施虐】</strong><br>心理学真相：控制财务和社交圈，是为了剪断你的翅膀，这是重度精神操控的核心表现。<br>行动指南：悄悄重建你的私密账户和社交联系，为撤离做准备。", q: "【关键排查】TA是否曾监控你的行踪、限制你的财务，或阻止你见某些特定的朋友/家人？", options: optVeto },
+        { id: 53, dimIndex: -1, isVeto: true, vetoReason: "<strong>【TAG: 极度轻蔑/末日指标】</strong><br>心理学真相：“鄙视”是预测分手准确率最高的指标（93%）。荡妇羞辱、翻白眼，说明TA在心理地位上将你视作“劣等生物”。<br>行动指南：离开这个剥夺你尊严的人，去那些能看到你价值的地方。", q: "【关键排查】在争吵时，TA是否曾使用侮辱性极强的词汇辱骂你，或流露出极度鄙夷的神情？", options: optVeto },
+        { id: 54, dimIndex: -1, isVeto: true, vetoReason: "<strong>【TAG: 毁灭性成瘾】</strong><br>心理学真相：严重成瘾会彻底改变大脑系统。只要TA拒绝专业医疗，你的陪伴就等于“协同毁灭”。<br>行动指南：坚决切割。成瘾是医学问题，你治不了TA，只能自救。", q: "【关键排查】TA是否有严重的成瘾行为（如赌博、酗酒、药物滥用）且拒绝寻求专业治疗？", options: optVeto }
     ];
 
     let shuffledQuestions = [];
@@ -376,22 +395,17 @@
                 btn.disabled = false;
             }
         } catch (error) {
-            // 本地测试可以直接解除注释跳过验证
+            // 本地测试可直接取消注释跳过后端验证
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('quiz-screen').style.display = 'block';
             renderQuestions();
             return;
-            
-            // alert("网络请求失败，请稍后再试。");
-            // btn.innerText = "验证并开启测试";
-            // btn.disabled = false;
         }
     }
 
     function renderQuestions() {
         const container = document.getElementById('questions-container');
         container.innerHTML = '';
-        // 核心题打乱，但排查题固定在最后
         let part1 = shuffleArray(rawQuestions.slice(0, 48));
         let part2 = rawQuestions.slice(48);
         shuffledQuestions = part1.concat(part2);
@@ -518,9 +532,12 @@
         const scoreLabel = document.getElementById('scoreLabel');
         const chartWrappers = document.querySelectorAll('.chart-wrapper'); 
 
+        // 坐标系计算
+        let scoreX = g_dimScores[0] + g_dimScores[3] + g_dimScores[4]; 
+        let scoreY = g_dimScores[1] + g_dimScores[2] + g_dimScores[5];
+
         if (g_veto) {
             chartWrappers.forEach(el => el.style.display = 'none');
-            
             scoreBox.style.borderColor = "#ffcdd2";
             scoreBox.style.backgroundColor = "#fff5f5";
             scoreLabel.style.display = "none"; 
@@ -533,8 +550,8 @@
             pctText.style.background = "#ffebee";
         } else {
             chartWrappers.forEach(el => el.style.display = 'block');
-            
             scoreValue.innerText = g_totalScore;
+            
             if (g_totalScore >= 144) {
                 pctText.innerText = `🔥 综合评价超越了 ${percentile}% 的样本组`;
             } else {
@@ -543,14 +560,51 @@
                 pctText.style.color = "#666";
             }
             
-            drawBellCurve(g_totalScore, percentile);
             drawRadarChart();
+            drawScatterChart(scoreX, scoreY);
         }
 
-        renderReportText();
+        renderReportText(scoreX, scoreY);
     }
 
-    function renderReportText() {
+    // --- 六维度评价体系数据 ---
+    function getDimensionEval(dimIndex, score) {
+        const titles = ["情绪支持度", "责任与承诺", "沟通与冲突解决", "尊重与独立性", "亲密与连结感", "情绪稳定性"];
+        let tag = "", desc = "";
+        
+        if (score >= 28) {
+            if(dimIndex===0) { tag = "治愈系伴侣"; desc = "TA具备极高的情绪智力。不仅能听懂你表面的话，还能精准捕捉你未出口的委屈。在TA面前你拥有绝对情绪特权。"; }
+            else if(dimIndex===1) { tag = "稳如泰山"; desc = "TA有着极其成熟的成年人内核，言出必行，对未来有清晰规划并将你纳入其中。是主动说“别怕，有我”的人。"; }
+            else if(dimIndex===2) { tag = "建设型沟通大师"; desc = "你们的争吵是升级关系的垫脚石。TA能在愤怒中保持理性，不翻旧账，擅长主动递台阶，具备顶级修复力。"; }
+            else if(dimIndex===3) { tag = "自我分化极高"; desc = "TA深谙高质量亲密的真谛，从心底欣赏你，全力托举你去做自己热爱的事，毫无嫉妒与控制。"; }
+            else if(dimIndex===4) { tag = "灵魂双重契合"; desc = "你们不仅是爱人更是挚友。眼神交汇依然有光，身体接触充满爱意，拥有极高的专属同频共振。"; }
+            else if(dimIndex===5) { tag = "避风港"; desc = "面对突发危机或工作压力，TA总能展现出惊人的定力，不暴躁不迁怒，是家庭的定海神针。"; }
+        } else if (score >= 22) {
+            if(dimIndex===0) { tag = "常态化支持者"; desc = "TA基本能提供有效的情绪支持。虽然偶尔也会急于讲道理，但在你真正遇到大挫折时，TA绝不会缺席。"; }
+            else if(dimIndex===1) { tag = "靠谱的同行者"; desc = "偶尔会偷懒，但在大是大非和核心家庭责任（如财务底线、重大决策）上，TA能承担起自己应尽的份额。"; }
+            else if(dimIndex===2) { tag = "良性磨合者"; desc = "吵架时偶尔会上头，但事后能在合理时间内冷静，通过沟通达成共识。没有隔夜仇，懂得妥协。"; }
+            else if(dimIndex===3) { tag = "懂得避嫌的尊重者"; desc = "虽然偶尔会有小吃醋或希望你多陪陪，但总体上能尊重你的隐私、社交圈和个人选择。"; }
+            else if(dimIndex===4) { tag = "温热的依恋"; desc = "褪去了初期的狂热，进入了细水长流的稳定期。日常的拥抱聊天依然能给你带来真切的安心感。"; }
+            else if(dimIndex===5) { tag = "正常人类情绪"; desc = "遇到烂人烂事也会吐槽发火，但有自己成熟的消化渠道，绝少把最坏的脾气留给最亲近的你。"; }
+        } else if (score >= 16) {
+            if(dimIndex===0) { tag = "情感盲区"; desc = "沟通停留在事务层面。TA常觉得你想太多。这并非坏，而是TA自身共情系统不发达，缺乏灵魂共鸣。"; }
+            else if(dimIndex===1) { tag = "逃避者"; desc = "遇到现实问题（买房、职业）就打太极。你常常觉得自己在带一个大龄儿童，心力交瘁。"; }
+            else if(dimIndex===2) { tag = "防御/冷战爱好者"; desc = "沟通极为困难。一吵架TA就疯狂为自己辩护或直接筑起高墙（冷暴力）。问题永远被掩盖，从未被解决。"; }
+            else if(dimIndex===3) { tag = "隐性自恋控制"; desc = "TA喜欢打着“为你好”的旗号改造你，干涉穿搭、贬低朋友，你感到自由正在慢慢流失。"; }
+            else if(dimIndex===4) { tag = "室友综合征"; desc = "你们更像是搭伙过日子的室友。性生活锐减；两人同处一室，却各自低头玩手机，物理距离近，心理距离远。"; }
+            else if(dimIndex===5) { tag = "情绪过山车"; desc = "极度情绪化，常常一点就着。你和TA相处如同在蛋壳上跳舞，承担了极大的情绪内耗。"; }
+        } else {
+            if(dimIndex===0) { tag = "冷漠剥削者"; desc = "极度危险！TA对你的痛苦无动于衷甚至反向指责，你正在经历严重的情感忽视，极易导致抑郁。"; }
+            else if(dimIndex===1) { tag = "寄生/甩手掌柜"; desc = "毫无底线和责任感，可能存在财务混乱或过度依赖。你不是伴侣，你是TA的提款机或老妈子。"; }
+            else if(dimIndex===2) { tag = "毁灭性争吵"; desc = "冲突现场如同战场，充斥着批评、鄙视、辩护、冷战。TA的目的不是解决问题，而是精神上击垮你。"; }
+            else if(dimIndex===3) { tag = "极权吞噬者"; desc = "令人窒息的控制。TA不允许你有除TA之外的世界，查手机、限制社交，视你的独立为背叛。"; }
+            else if(dimIndex===4) { tag = "无性无爱"; desc = "极度的冷漠与排斥。不仅没有肢体接触，甚至连日常分享欲都已彻底死亡，关系名存实亡。"; }
+            else if(dimIndex===5) { tag = "火药桶"; desc = "喜怒无常到了病态程度。上一秒甜言蜜语，下一秒暴跳如雷。这种失控是人格障碍的典型特征。"; }
+        }
+        return { title: titles[dimIndex], tag: tag, desc: desc };
+    }
+
+    function renderReportText(scoreX, scoreY) {
         const report = document.getElementById('reportContent');
         
         if (g_veto) {
@@ -565,71 +619,30 @@
             return;
         }
 
-        // 象限逻辑计算
-        // X轴 (亲和度)： 情绪支持度 + 尊重与独立性 + 亲密与连结感
-        let scoreX = g_dimScores[0] + g_dimScores[3] + g_dimScores[4]; 
-        // Y轴 (成熟度)： 责任与承诺 + 沟通与冲突解决 + 情绪稳定性
-        let scoreY = g_dimScores[1] + g_dimScores[2] + g_dimScores[5];
-
         let quadrantHTML = "";
-
         if (scoreX >= 60 && scoreY >= 60) {
             quadrantHTML = "<h3>🌟 第一象限：安全型灯塔【优质伴侣区】</h3><p><strong>心理画像：</strong>TA既懂得如何爱你（高亲和），又具备抵御现实风雨的能力（高成熟）。在成人依恋理论中，这是典型的<strong>安全型依恋（Secure Attachment）</strong>。</p><p><strong>关系走向：</strong>高度滋养。你们的关系形成了一个良性循环：深度的亲密让你们愿意为彼此承担责任，而共同解决问题又进一步加深了你们的爱。</p><p><strong>教授寄语：</strong>极其稀有且珍贵！这是一段能够让双方都成为更好自己的神仙关系。请好好珍惜，并同样回馈TA等量的爱与尊重。</p>";
         } else if (scoreX < 60 && scoreY >= 60) {
-            quadrantHTML = "<h3>🏢 第二象限：理性室友 / 传统大家长【枯燥但安全区】</h3><p><strong>心理画像：</strong>靠谱，但冷漠。TA在现实层面无可挑剔（能赚钱、顾家、情绪稳定），但在情感层面高度抽离。这通常对应<strong>疏离-回避型依恋</strong>。TA可能是用“做事”来替代“表达爱”。</p><p><strong>关系走向：</strong>物质稳固，精神饥渴。你常常觉得TA像一台运转良好的ATM机或机器人，关系中充满了“应该怎么做”的规矩，却缺乏“我好想你”的激情。长期下来，你可能会感到孤独和抑郁。</p><p><strong>干预建议：</strong>不要试图通过无理取闹来逼迫TA表达情感。试着接纳TA用“行动”表达爱的语言，同时通过正向反馈，像训练肌肉一样慢慢唤醒TA的共情能力。</p>";
+            quadrantHTML = "<h3>🏢 第二象限：理性室友 / 传统大家长【枯燥但安全区】</h3><p><strong>心理画像：</strong>靠谱，但冷漠。TA在现实层面无可挑剔（能赚钱、顾家、情绪稳定），但在情感层面高度抽离。这通常对应<strong>疏离-回避型依恋</strong>。TA可能是用“做事”来替代“表达爱”。</p><p><strong>关系走向：</strong>物质稳固，精神饥渴。你常常觉得TA像一台运转良好的ATM机或机器人，关系中充满了“应该怎么做”的规矩，却缺乏“我好想你”的激情。长期下来，你可能会感到孤独和抑郁。</p><p><strong>干预建议：</strong>不要试图通过无理取闹来逼迫TA表达情感。接纳TA用“行动”表达爱的语言，同时通过正向反馈，慢慢唤醒TA的共情能力。</p>";
         } else if (scoreX < 60 && scoreY < 60) {
-            quadrantHTML = "<h3>🌪️ 第三象限：消耗型伴侣 / 黑洞【绝对危险区】</h3><p><strong>心理画像：</strong>既冷酷无情，又极度不负责任且情绪失控。这种画像高度重合心理学上的<strong>黑暗三角特质</strong>（马基雅维利主义、自恋、精神病态）。TA完全以自我为中心，把你当做满足私欲的工具。</p><p><strong>关系走向：</strong>毁灭性的消耗。你会被持续吸血、打压、背叛，直至你失去所有的自信和生命力。</p><p><strong>干预建议：</strong>丢掉幻想，放弃助人情结！你改变不了TA的底层人格。请立刻开始规划退出路径，必要时向亲友寻求保护。逃离，是你唯一的出路。</p>";
+            quadrantHTML = "<h3>🌪️ 第三象限：毒性黑洞【绝对危险区】</h3><p><strong>心理画像：</strong>既冷酷无情，又极度不负责任且情绪失控。这种画像高度重合心理学上的<strong>黑暗三角特质</strong>。TA完全以自我为中心，把你当做满足私欲的工具。</p><p><strong>关系走向：</strong>毁灭性的消耗。你会被持续吸血、打压、背叛，直至你失去所有的自信和生命力。</p><p><strong>干预建议：</strong>丢掉幻想，放弃助人情结！你改变不了TA的底层人格。请立刻开始规划退出路径，必要时向亲友寻求保护。逃离，是你唯一的出路。</p>";
         } else {
-            quadrantHTML = "<h3>👶 第四象限：依恋型儿童 / 情绪狂【浪漫废柴区】</h3><p><strong>心理画像：</strong>温暖但脆弱。TA极度粘人、浪漫、能提供极高的情绪价值（可能伴随轰炸式示爱），但内核极其虚弱。对应<strong>焦虑-迷恋型依恋</strong>。遇到现实责任立刻逃避，一吵架就情绪崩溃。</p><p><strong>关系走向：</strong>“妈宝男/女”与“拯救者”的戏码。开头甜如蜜，后期累如狗。你不仅要处理外在的生活压力，还要时刻哄着TA这个“大号儿童”，关系极其脆弱。</p><p><strong>干预建议：</strong>停止你的“圣母/拯救者”行为！不要再帮TA擦屁股。把责任还给TA，划定严格的底线（比如因逃避而产生的烂摊子绝不代扛）。如果TA拒绝长大，这段关系没有未来。</p>";
+            quadrantHTML = "<h3>👶 第四象限：情绪巨婴【浪漫废柴区】</h3><p><strong>心理画像：</strong>温暖但脆弱。TA极度粘人、能提供极高情绪价值，但内核极其虚弱。对应<strong>焦虑-迷恋型依恋</strong>。遇到现实责任立刻逃避，一吵架就情绪崩溃。</p><p><strong>关系走向：</strong>“妈宝”与“拯救者”的戏码。开头甜如蜜，后期累如狗。你不仅要处理外在的生活压力，还要时刻哄着TA这个“大号儿童”，关系极其脆弱。</p><p><strong>干预建议：</strong>停止你的“拯救者”行为！不要再帮TA擦屁股。把责任还给TA，划定严格的底线（因逃避产生的烂摊子绝不代扛）。如果TA拒绝长大，这段关系没有未来。</p>";
         }
 
-        report.innerHTML = quadrantHTML;
-    }
-
-    let bChart = null;
-    function drawBellCurve(userScore, percentile) {
-        const ctx = document.getElementById('bellChart').getContext('2d');
-        if (bChart) bChart.destroy();
-        let labels = [], data = [], pointColors = [], pointRadii = [];
-
-        for(let i = 48; i <= 192; i+=2) {
-            labels.push(i);
-            let y = Math.exp(-Math.pow(i - 120, 2) / (2 * Math.pow(25, 2))) * 100; 
-            data.push(y);
-            // 这里用相近值匹配显示点
-            if(Math.abs(i - userScore) <= 1) {
-                pointColors.push('#d81b60'); pointRadii.push(6);
-            } else {
-                pointColors.push('rgba(0,0,0,0)'); pointRadii.push(0);
-            }
+        // 六维深度拆解
+        let dimsHTML = "<h3 style='margin-top:35px;'>🔍 六维度深度拆解分析</h3>";
+        for (let i = 0; i < 6; i++) {
+            let evalData = getDimensionEval(i, g_dimScores[i]);
+            dimsHTML += `
+                <div class="dim-box">
+                    <h4>${evalData.title} : ${g_dimScores[i]}分 <span class="dim-tag">${evalData.tag}</span></h4>
+                    <p>${evalData.desc}</p>
+                </div>
+            `;
         }
 
-        bChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: '数据分布曲线',
-                    data: data,
-                    borderColor: '#ff758c', 
-                    backgroundColor: 'rgba(255, 117, 140, 0.1)',
-                    borderWidth: 2, fill: true, tension: 0.4, 
-                    pointBackgroundColor: pointColors,
-                    pointRadius: pointRadii,
-                    pointHoverRadius: pointRadii
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true, 
-                aspectRatio: 1.8, 
-                scales: {
-                    x: { ticks: { callback: function(val, index) { return index % 12 === 0 ? labels[index] : ''; } } },
-                    y: { display: false } 
-                },
-                plugins: { legend: { display: false }, tooltip: { enabled: false } }
-            }
-        });
+        report.innerHTML = quadrantHTML + dimsHTML;
     }
 
     let rChart = null;
@@ -665,6 +678,53 @@
                     }
                 },
                 plugins: { legend: { display: false } }
+            }
+        });
+    }
+
+    let sChart = null;
+    function drawScatterChart(scoreX, scoreY) {
+        const ctx = document.getElementById('scatterChart').getContext('2d');
+        if (sChart) sChart.destroy();
+
+        sChart = new Chart(ctx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: '伴侣坐标',
+                    data: [{x: scoreX, y: scoreY}],
+                    backgroundColor: '#d81b60',
+                    pointRadius: 8,
+                    pointHoverRadius: 10,
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 1,
+                scales: {
+                    x: {
+                        min: 24, max: 96,
+                        title: { display: true, text: '亲和度 (温暖/情绪价值)' },
+                        grid: {
+                            color: function(context) { return context.tick.value === 60 ? 'rgba(216,27,96,0.3)' : 'rgba(0,0,0,0.05)'; },
+                            lineWidth: function(context) { return context.tick.value === 60 ? 2 : 1; }
+                        }
+                    },
+                    y: {
+                        min: 24, max: 96,
+                        title: { display: true, text: '成熟度 (抗压/社会功能)' },
+                        grid: {
+                            color: function(context) { return context.tick.value === 60 ? 'rgba(216,27,96,0.3)' : 'rgba(0,0,0,0.05)'; },
+                            lineWidth: function(context) { return context.tick.value === 60 ? 2 : 1; }
+                        }
+                    }
+                },
+                plugins: { legend: { display: false }, tooltip: {
+                    callbacks: { label: function(context) { return `亲和度: ${context.parsed.x}, 成熟度: ${context.parsed.y}`; } }
+                } }
             }
         });
     }
