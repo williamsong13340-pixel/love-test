@@ -375,11 +375,15 @@
                 btn.disabled = false;
             }
         } catch (error) {
-            // 本地测试可直接取消注释跳过后端验证
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('quiz-screen').style.display = 'block';
-            renderQuestions();
-            return;
+            // 本地测试可取消下方注释跳过后端验证
+            // document.getElementById('auth-screen').style.display = 'none';
+            // document.getElementById('quiz-screen').style.display = 'block';
+            // renderQuestions();
+            // return;
+            
+            alert("网络请求失败，请检查网络后重试。");
+            btn.innerText = "验证并开启测评";
+            btn.disabled = false;
         }
     }
 
@@ -693,7 +697,7 @@
                 aspectRatio: 1,
                 scales: {
                     x: {
-                        min: 20, max: 100, // 放宽了边界，防止圆点贴边
+                        min: 24, max: 96, // 精确匹配数据范围(3维度×8~32分)
                         title: { display: true, text: '亲和度 (温暖/情绪价值)' },
                         grid: {
                             color: function(context) { return context.tick.value === 60 ? 'rgba(216,27,96,0.3)' : 'rgba(0,0,0,0.05)'; },
@@ -701,7 +705,7 @@
                         }
                     },
                     y: {
-                        min: 20, max: 100, // 放宽了边界，防止圆点贴边
+                        min: 24, max: 96, // 精确匹配数据范围(3维度×8~32分)
                         title: { display: true, text: '成熟度 (抗压/社会功能)' },
                         grid: {
                             color: function(context) { return context.tick.value === 60 ? 'rgba(216,27,96,0.3)' : 'rgba(0,0,0,0.05)'; },
