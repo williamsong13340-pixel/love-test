@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>伴侣测试</title>
+    <title>伴侣综合特质与关系健康测试</title>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -173,7 +173,7 @@
             background: #fff5f5; border: 1px solid #ffd6d6; padding: 16px; border-radius: 12px; margin: 20px 0; 
         }
         .fatal-warning-box h4 { color: #d32f2f; margin: 0 0 10px 0; font-size: 16px; }
-        .fatal-warning-box ul { margin: 0; padding-left: 20px; color: #c62828; font-weight: 600; line-height: 1.6;}
+        .fatal-warning-box p { margin: 0 0 10px 0; color: #c62828; font-weight: normal; line-height: 1.6;}
 
         .copyright { position: absolute; bottom: 20px; left: 0; width: 100%; text-align: center; font-size: 12px; color: #bcaaaef0; }
 
@@ -184,14 +184,14 @@
 <body>
 
 <div class="container" id="mainContainer">
-    <h1>伴侣测试</h1>
-    <div class="subtitle">从五个维度全面分析你的伴侣</div>
+    <h1>伴侣综合特质与关系健康测试</h1>
+    <div class="subtitle">六维度雷达图与宏观坐标系双重分析</div>
 
     <!-- 验证界面 -->
     <div id="auth-screen">
         <div class="disclaimer-box">
             <strong>免责声明：</strong><br>
-            本测试结果仅供娱乐参考，不对任何现实决策负责。测试过程完全私密，系统不会收集或记录您的任何个人信息。开始既同意。
+            本测试结果仅供娱乐参考，不对任何现实决策负责。测试过程完全私密，系统不会收集或记录您的任何个人信息。开始即同意。
         </div>
         <div class="lock-icon">🔐</div>
         <h2 style="color: var(--primary); font-size: 20px;">测试入口已锁定</h2>
@@ -203,7 +203,7 @@
     <!-- 答题界面 -->
     <div id="quiz-screen">
         <div class="intro">
-            <strong>⚠️ 填写指南：</strong>请根据TA的真实表现进行选择。不要选你“希望”TA做到的，请选TA“实际”做出来的。
+            <strong>⚠️ 填写指南：</strong>请回想你们最近半年的相处状态，根据第一直觉作答。不要去想“TA心里是怎么想的”，只根据TA实际做出的行为来作答。
         </div>
         <form id="quizForm">
             <div id="questions-container"></div>
@@ -226,7 +226,7 @@
         <h2 style="text-align: center; color: var(--primary); margin-bottom: 20px; font-size: 22px;">📊 专属诊断报告</h2>
         
         <div class="score-box" id="scoreBox">
-            <div style="color: var(--text-sub); font-size: 14px; font-weight: bold;" id="scoreLabel">综合评估得分 (满分125)</div>
+            <div style="color: var(--text-sub); font-size: 14px; font-weight: bold;" id="scoreLabel">常规部分综合得分 (满分192)</div>
             <div class="score-number" id="scoreValue">0</div>
             <div class="percentile-text" id="percentileText">加载中...</div>
         </div>
@@ -239,7 +239,7 @@
         </div>
 
         <div class="chart-wrapper">
-            <div class="chart-title" id="radarTitle">【 五维雷达扫描图 】</div>
+            <div class="chart-title" id="radarTitle">【 六维雷达扫描图 】</div>
             <div class="radar-container">
                 <canvas id="radarChart"></canvas>
             </div>
@@ -267,182 +267,77 @@
         }
     });
 
+    const optStd = [
+        { text: "完全符合", score: 4 }, { text: "比较符合", score: 3 }, 
+        { text: "比较不符合", score: 2 }, { text: "完全不符合", score: 1 }
+    ];
+    const optRev = [
+        { text: "完全符合", score: 1 }, { text: "比较符合", score: 2 }, 
+        { text: "比较不符合", score: 3 }, { text: "完全不符合", score: 4 }
+    ];
+    const optVeto = [
+        { text: "是", score: 1 }, { text: "否", score: 4 }
+    ];
+
+    // 0:情绪支持度, 1:责任与承诺, 2:沟通与冲突, 3:尊重与独立, 4:亲密与连结, 5:情绪稳定
     const rawQuestions = [
-        { id: 1, dimIndex: 0, q: "TA现在的收入和工作状态怎么样？", options: [
-            { text: "A. 高薪且稳定，搞钱很猛，有清晰且极其靠谱的未来搞钱规划。", score: 5 },
-            { text: "B. 收入中上，工作稳定，一步一个脚印，有明确的涨薪空间。", score: 4 },
-            { text: "C. 够吃够喝，没什么大追求，过一天算一天。", score: 3 },
-            { text: "D. 收入不稳定/频繁换工作，还眼高手低，天天做着暴富梦。", score: 2 },
-            { text: "E. 经常失业，靠你养着，甚至还欠了一屁股烂账。", score: 1 }
-        ]},
-        { id: 2, dimIndex: 0, q: "关于房车和存款，TA的实际情况是：", options: [
-            { text: "A. 有房有车（或准备好了充足的首付），能给你绝对的物质安全感。", score: 5 },
-            { text: "B. 还在攒钱中，但有极其可行的买房/理财计划，两人能一起努力。", score: 4 },
-            { text: "C. 没啥资产，觉得租房也行，或者单纯指望掏空父母的钱包。", score: 3 },
-            { text: "D. 不仅没资产，还有网贷、信用卡透支等隐形窟窿。", score: 2 },
-            { text: "E. 严重负债，且毫无还款能力，甚至想忽悠你的钱去填坑。", score: 1 }
-        ]},
-        { id: 3, dimIndex: 0, q: "TA的日常花钱习惯是怎样的？", options: [
-            { text: "A. 懂理财，有存款，钱花在刀刃上，抗风险能力极强。", score: 5 },
-            { text: "B. 正常消费，偶尔冲动买点贵的，但绝不会影响生活质量。", score: 4 },
-            { text: "C. 典型的“月光族”，赚多少花多少，真遇上急事掏不出一分钱。", score: 3 },
-            { text: "D. 对自己挺大方，对你却很苛刻；或者两人在一起时极其抠门算计。", score: 2 },
-            { text: "E. 挥霍无度，为了面子或享乐疯狂透支，是个填不满的无底洞。", score: 1 }
-        ]},
-        { id: 4, dimIndex: 0, q: "TA在你身上花钱的态度是：", options: [
-            { text: "A. 非常大方，总想在能力范围内给你最好的，逢年过节仪式感拉满。", score: 5 },
-            { text: "B. 挺舍得为你花钱，大件会商量，日常吃饭买东西不计较。", score: 4 },
-            { text: "C. 算得很精明，吃个饭看个电影都经常明示或暗示要跟你AA。", score: 3 },
-            { text: "D. 经常跟你哭穷，找你要贵重礼物，或者让你倒贴。", score: 2 },
-            { text: "E. 纯纯把你当提款机，明目张胆地压榨你的钱。", score: 1 }
-        ]},
-        { id: 5, dimIndex: 0, q: "万一遇到突发急事（比如生大病、意外失业），TA的反应是：", options: [
-            { text: "A. 有充足存款或保险，遇事极其冷静，能替你兜底遮风挡雨。", score: 5 },
-            { text: "B. 咬咬牙也能顶上，会积极想办法凑钱或找路子解决问题。", score: 4 },
-            { text: "C. 遇到事就懵了，双手一摊，只能靠你或者找父母求救。", score: 3 },
-            { text: "D. 满腹牢骚，拖延逃避，甚至把经济压力全推到你头上。", score: 2 },
-            { text: "E. 大难临头各自飞，连夜跑路或者直接玩消失。", score: 1 }
-        ]},
-        { id: 6, dimIndex: 1, q: "当你受委屈向TA疯狂吐槽抱怨时，TA的反应是：", options: [
-            { text: "A. 立刻放下手机，先抱抱你安抚情绪，等你冷静了再帮你出主意。", score: 5 },
-            { text: "B. 会安慰你几句，但经常犯直男/直女思维，很快就开始跟你讲大道理。", score: 4 },
-            { text: "C. 边玩手机边敷衍你：“嗯嗯、啊、别想太多了。”", score: 3 },
-            { text: "D. 觉得你很烦：“多大点事啊，你至于天天说吗？”", score: 2 },
-            { text: "E. 倒打一耙，反过来凶你：“还不都是你自己的问题！”", score: 1 }
-        ]},
-        { id: 7, dimIndex: 1, q: "日常相处中，TA对你的细节关注度怎么样？", options: [
-            { text: "A. 细节狂魔，一眼看穿你的不开心，牢记你的喜好和随口说的话。", score: 5 },
-            { text: "B. 整体挺关心的，偶尔有点粗心大意，但你一提醒立马就改。", score: 4 },
-            { text: "C. 比较自私，永远把自己放第一位，只有TA需要你时才对你热情。", score: 3 },
-            { text: "D. 漠不关心，连你的生日、重要的纪念日都经常忘得一干二净。", score: 2 },
-            { text: "E. 彻底无视你的感受，哪怕你生病发烧，TA都能在旁边安心打游戏。", score: 1 }
-        ]},
-        { id: 8, dimIndex: 1, q: "你们平时的亲密肢体接触（非生理需求）多吗？", options: [
-            { text: "A. 经常牵手、拥抱、贴贴，让你感觉被浓烈地爱着。", score: 5 },
-            { text: "B. 互动很正常，像老夫老妻一样，总体感觉很自然踏实。", score: 4 },
-            { text: "C. 很少碰你，平时各玩各的手机，相处起来像极了“合租室友”。", score: 3 },
-            { text: "D. 你主动去抱TA，TA会下意识躲开或者表现出嫌弃。", score: 2 },
-            { text: "E. 平时极度抗拒亲近，只有在TA想解决生理需求时才会碰你。", score: 1 }
-        ]},
-        { id: 9, dimIndex: 1, q: "当TA的朋友或家人在场时，TA是怎么对你的？", options: [
-            { text: "A. 大大方方炫耀你，极度护短，别人要是敢说你一句TA必翻脸。", score: 5 },
-            { text: "B. 表现挺自然的，偶尔人多顾不上你，但事后会赶紧哄你。", score: 4 },
-            { text: "C. 窝里横，在外人面前故意冷落你、或者使唤你来显摆TA的地位。", score: 3 },
-            { text: "D. 故意隐瞒你是男/女朋友的身份，对外强行装单身。", score: 2 },
-            { text: "E. 跟着外人或TA家里人一起贬低你、嘲笑你、打压你。", score: 1 }
-        ]},
-        { id: 10, dimIndex: 1, q: "异地或者平时上班见不到面时，TA的聊天习惯是：", options: [
-            { text: "A. 事事有回应，主动报备日常，就算异地也能给足你安全感。", score: 5 },
-            { text: "B. 每天都会聊天，虽然有时候话不多，但你随时都能找到人。", score: 4 },
-            { text: "C. 经常几个小时不回消息，问就是“在忙”、“没看手机”。", score: 3 },
-            { text: "D. 动不动就玩失踪，让你天天内耗，猜TA到底在干嘛。", score: 2 },
-            { text: "E. 故意断联冷战，用“不理你”来惩罚你、折磨你。", score: 1 }
-        ]},
-        { id: 11, dimIndex: 2, q: "两人爆发激烈争吵时，TA的底线在哪？", options: [
-            { text: "A. 绝不吼叫，就事论事，绝对不翻旧账，不骂脏话。", score: 5 },
-            { text: "B. 会上头生气，但一旦看到你哭了或者很难受，会立刻停下来。", score: 4 },
-            { text: "C. 极其擅长“冷暴力”，你不低头TA能憋一个月不理你。", score: 3 },
-            { text: "D. 情绪极容易失控，骂人极度难听，甚至会砸东西泄愤。", score: 2 },
-            { text: "E. 有推搡、动手倾向，或者用自残跳楼来威胁你。", score: 1 }
-        ]},
-        { id: 12, dimIndex: 2, q: "吵完架之后的“和好期”，TA一般会怎么做？", options: [
-            { text: "A. 主动找台阶，真诚道歉并跟你复盘，商量以后怎么避免，且真的会改。", score: 5 },
-            { text: "B. 不太会深聊，但会嬉皮笑脸或者买个小礼物主动求和，愿意翻篇。", score: 4 },
-            { text: "C. 死鸭子嘴硬绝不认错，最多装作无事发生跟你讲话。", score: 3 },
-            { text: "D. 极其记仇，把陈芝麻烂谷子的事全都记在一个本子上，随时拿出来恶心你。", score: 2 },
-            { text: "E. 疯狂给你洗脑（PUA），颠倒黑白，最后逼得你流着泪向TA认错。", score: 1 }
-        ]},
-        { id: 13, dimIndex: 2, q: "如果TA自己遇到了大挫折（比如失业、亏大钱），TA的状态是：", options: [
-            { text: "A. 难过一会儿就能重新振作，展现出超强韧性，自己找门路翻盘。", score: 5 },
-            { text: "B. 会向你倒苦水求安慰，但生活的基本节奏还能维持正常。", score: 4 },
-            { text: "C. 彻底颓废，天天躺尸，把负能量全当垃圾一样倒给你。", score: 3 },
-            { text: "D. 怨天尤人，觉得全天下都欠TA的，脾气变得极差，逮谁咬谁。", score: 2 },
-            { text: "E. 靠酗酒、赌博、沉迷网游逃避现实，彻底烂泥扶不上墙。", score: 1 }
-        ]},
-        { id: 14, dimIndex: 2, q: "TA平时的日常情绪像什么？", options: [
-            { text: "A. 阳光小太阳，每天乐呵呵的，能治愈你的焦虑。", score: 5 },
-            { text: "B. 大部分时候平稳，偶尔发点小脾气，顺着毛哄两句就好。", score: 4 },
-            { text: "C. 敏感多疑，动不动就闷闷不乐，让你觉得气氛很压抑。", score: 3 },
-            { text: "D. 情绪过山车，上一秒笑下一秒炸，你在TA身边步步惊心。", score: 2 },
-            { text: "E. 暴戾阴沉，就像个定时炸弹，你甚至有点害怕TA。", score: 1 }
-        ]},
-        { id: 15, dimIndex: 2, q: "面对两人意见不合的大事时，TA会怎么办？", options: [
-            { text: "A. 凡事跟你商量，尊重你的意见，一定要找一个两人都舒服的方案。", score: 5 },
-            { text: "B. 会努力说服你，但如果你的理由更充分，TA最终愿意让步。", score: 4 },
-            { text: "C. 表面答应你，背地里却按自己的意思办，先斩后奏。", score: 3 },
-            { text: "D. 极度大男子/大女子主义，什么事都必须是TA说了算。", score: 2 },
-            { text: "E. 独裁暴君，你不听TA的，TA就用分手或发疯来威胁你。", score: 1 }
-        ]},
-        { id: 16, dimIndex: 3, q: "对你的工作、考研或个人提升，TA是什么态度？", options: [
-            { text: "A. 你的头号粉丝。出钱出力出人脉，甚至包揽家务支持你搞事业。", score: 5 },
-            { text: "B. 不怎么插手，但会口头鼓励你：“只要你开心就行。”", score: 4 },
-            { text: "C. 经常泼冷水：“折腾这干嘛，又赚不到几个钱。”", score: 3 },
-            { text: "D. 见不得你好，潜意识嫉妒你，怕你变优秀了脱离TA的掌控。", score: 2 },
-            { text: "E. 强迫你辞职/退学，企图把你圈在家里当免费保姆和附属品。", score: 1 }
-        ]},
-        { id: 17, dimIndex: 3, q: "你们家务活是怎么分配的？", options: [
-            { text: "A. 眼里有活，主动干一半以上的家务，觉得这是共同生活的本分。", score: 5 },
-            { text: "B. 算不上勤快，但你喊TA干啥TA就干啥，虽然像个算盘珠子拨一下动一下。", score: 4 },
-            { text: "C. 典型的“丧偶式”，平时不动手，偶尔洗个碗恨不得发朋友圈炫耀。", score: 3 },
-            { text: "D. 觉得家务天生就是你的事，平时把家里弄得乱七八糟还要你收拾。", score: 2 },
-            { text: "E. 纯大爷/祖宗做派，不仅不干活，还天天挑剔你这没弄好那没弄好。", score: 1 }
-        ]},
-        { id: 18, dimIndex: 3, q: "你们对未来（结婚、生子、定居等）的规划合拍吗？", options: [
-            { text: "A. 核心目标高度一致，规划里全是你，而且正在为未来拼命努力。", score: 5 },
-            { text: "B. 大方向差不多，有些细节还在磨合，但不影响踏实过日子。", score: 4 },
-            { text: "C. 一提未来就打太极：“顺其自然吧”、“以后再说”，敷衍拖延。", score: 3 },
-            { text: "D. 核心观念完全相反（比如你要结婚TA死活不结），死耗着不让步。", score: 2 },
-            { text: "E. 从来没想过跟你有未来，现在只是把你当过渡期的消遣。", score: 1 }
-        ]},
-        { id: 19, dimIndex: 3, q: "和TA在一起之后，你感觉自己的状态怎么样？", options: [
-            { text: "A. 变得更自信好看了，整个人闪闪发光，感觉被狠狠滋养了。", score: 5 },
-            { text: "B. 没太大变化，但生活多了一个踏实的伴儿，挺安心的。", score: 4 },
-            { text: "C. 经常内耗焦虑，感觉精力被抽干，好像变丑、变憔悴了。", score: 3 },
-            { text: "D. 严重自我怀疑，觉得自己什么都做不好，全靠对方不嫌弃。", score: 2 },
-            { text: "E. 彻底抑郁崩溃，失去了原本的社交和快乐，每天都在掉眼泪。", score: 1 }
-        ]},
-        { id: 20, dimIndex: 3, q: "当你想去交新朋友，或者培养个新爱好（如健身、跳舞）时：", options: [
-            { text: "A. 陪你一起去玩，或者极力鼓励你去交新朋友、变得更好。", score: 5 },
-            { text: "B. 自己不参与，但给你绝对的自由和独处时间。", score: 4 },
-            { text: "C. 觉得你在浪费钱和时间，总在旁边阴阳怪气扫你的兴。", score: 3 },
-            { text: "D. 查手机、管门禁，不想让你见除了TA以外的任何人。", score: 2 },
-            { text: "E. 故意挑拨你和家人、闺蜜/哥们的关系，企图把你彻底孤立。", score: 1 }
-        ]},
-        { id: 21, dimIndex: 4, isVeto: true, vetoReason: "实锤的出轨、聊骚、买春史，或保留交友软件。", q: "TA跟其他异性相处时的“边界感”如何？", options: [
-            { text: "A. 绝对清白，主动避嫌，连副驾都不让别的异性坐，事事报备。", score: 5 },
-            { text: "B. 正常社交，不会单独跟异性出去，聊天记录光明坦荡。", score: 4 },
-            { text: "C. 喜欢认哥哥/妹妹/红颜知己，你一吃醋TA就嫌你小心眼。", score: 3 },
-            { text: "D. 经常在网上乱撩，或者跟前任不清不楚，被你抓包过暧昧。", score: 2 },
-            { text: "E. 有实锤的出轨/聊骚/买春史，或手机里常备交友约P软件。", score: 1 }
-        ]},
-        { id: 22, dimIndex: 4, isVeto: true, vetoReason: "沾染黄、赌、毒，或有家暴/犯罪前科。", q: "TA有没有什么不良嗜好？", options: [
-            { text: "A. 极度自律，爱惜身体和羽毛，没有任何烧钱或伤身的恶习。", score: 5 },
-            { text: "B. 偶尔抽烟喝酒打打游戏，但绝对知道分寸，绝不过量。", score: 4 },
-            { text: "C. 严重沉迷游戏/短视频/去酒吧，把时间、精力和钱全砸在上面。", score: 3 },
-            { text: "D. 经常喝得烂醉耍酒疯，或者因为爱好搞出过一堆负债。", score: 2 },
-            { text: "E. 沾染黄、赌、毒，或者哪怕只有一次的家暴/犯罪前科。", score: 1 }
-        ]},
-        { id: 23, dimIndex: 4, isVeto: true, vetoReason: "极度自私，关键时刻推伴侣出去挡枪背黑锅。", q: "遇到大事或者需要担责任的时候，TA的第一反应是：", options: [
-            { text: "A. 敢作敢当，第一时间冲在前面解决问题，把你护在身后。", score: 5 },
-            { text: "B. 本能会有点退缩害怕，但在你的要求下，还是会硬着头皮去扛。", score: 4 },
-            { text: "C. 满嘴跑火车，答应的事从来做不到，毫无信誉可言。", score: 3 },
-            { text: "D. 一出事就装死逃避，全靠你跟在屁股后面给TA擦屁股。", score: 2 },
-            { text: "E. 极度自私，关键时刻毫不犹豫把你推出去挡枪、背黑锅。", score: 1 }
-        ]},
-        { id: 24, dimIndex: 4, isVeto: true, vetoReason: "原生家庭是无底洞，逼迫伴侣共同填坑。", q: "TA和TA父母（原生家庭）的关系是怎样的？", options: [
-            { text: "A. 经济和人格绝对独立，坚定认为“咱们俩的小家庭永远排第一位”。", score: 5 },
-            { text: "B. 父母偶尔会来干涉，但在大是大非面前，TA能站出来护着你。", score: 4 },
-            { text: "C. 纯种妈宝男/扶弟魔，凡事“我妈说”、“我家里说”，毫无主见。", score: 3 },
-            { text: "D. 家里人欺负你的时候，TA装聋作哑，甚至帮你家里人一起说你。", score: 2 },
-            { text: "E. 原生家庭是个填不满的无底洞，TA还逼你一起拿钱去填坑。", score: 1 }
-        ]},
-        { id: 25, dimIndex: 4, isVeto: true, vetoReason: "具有虐待弱者倾向或反社会戾气。", q: "当TA面对比自己弱的人（如服务员、外卖员、流浪动物）时，态度是：", options: [
-            { text: "A. 骨子里的善良，对谁都很客气，有同理心，会心疼弱者。", score: 5 },
-            { text: "B. 正常人态度，不热络也不刁难，秉持多一事不如少一事。", score: 4 },
-            { text: "C. 精致利己，对领导有钱人疯狂谄媚，对普通人冷漠算计。", score: 3 },
-            { text: "D. 嫌贫爱富，优越感爆棚，喜欢对着服务员大呼小叫装大爷。", score: 2 },
-            { text: "E. 有虐待小动物的倾向，或者看谁都不顺眼，充满反社会戾气。", score: 1 }
-        ]}
+        // 第一部分：常规行为评估 (1-48)
+        { id: 1, dimIndex: 0, q: "当我分享一件开心的小事时，TA会放下手机看着我回应。", options: optStd },
+        { id: 2, dimIndex: 1, q: "答应过我的日常小事（如买个东西、倒垃圾），TA经常忘记或推脱。", options: optRev },
+        { id: 3, dimIndex: 2, q: "当我们对某件事有分歧时，TA会努力寻找我们都能接受的折中方案。", options: optStd },
+        { id: 4, dimIndex: 3, q: "TA经常试图改变我的穿衣风格或我个人的生活习惯。", options: optRev },
+        { id: 5, dimIndex: 4, q: "我们每周都会有纯粹享受彼此陪伴的时光（哪怕只是牵手散步）。", options: optStd },
+        { id: 6, dimIndex: 5, q: "TA的情绪就像天气一样难以预测，我经常需要“察言观色”。", options: optRev },
+        { id: 7, dimIndex: 0, q: "在我遇到工作或生活上的挫折时，TA的第一反应是倾听和拥抱，而不是急着“教我做事”。", options: optStd },
+        { id: 8, dimIndex: 1, q: "涉及到两人共同开销或未来规划时，TA总是逃避讨论。", options: optRev },
+        { id: 9, dimIndex: 2, q: "吵架后，TA经常使用“冷暴力”（几天不理我）来应对。", options: optRev },
+        { id: 10, dimIndex: 3, q: "TA支持我拥有自己的社交圈，我出去和朋友聚会时TA不会阴阳怪气。", options: optStd },
+        { id: 11, dimIndex: 4, q: "走在路上或看电视时，TA会自然地与我有肢体接触（如搭肩膀、牵手）。", options: optStd },
+        { id: 12, dimIndex: 5, q: "即使在压力很大的情况下，TA也很少对我大吼大叫。", options: optStd },
+        { id: 13, dimIndex: 0, q: "当我表达难过或委屈时，TA常说“你想太多了”或“这有什么好哭的”。", options: optRev },
+        { id: 14, dimIndex: 1, q: "家里需要维修或统筹的事情，TA会主动承担，而不是等我安排。", options: optStd },
+        { id: 15, dimIndex: 2, q: "TA在生气时，依然能就事论事，不会翻旧账或对我进行人身攻击。", options: optStd },
+        { id: 16, dimIndex: 3, q: "TA未经我允许，绝不会私自翻看我的手机或日记。", options: optStd },
+        { id: 17, dimIndex: 4, q: "我们的性生活或亲密接触，越来越像是在例行公事，或者干脆没有。", options: optRev },
+        { id: 18, dimIndex: 5, q: "如果遇到突发状况（如车抛锚、生病），TA能迅速冷静下来解决问题。", options: optStd },
+        { id: 19, dimIndex: 0, q: "我可以毫无顾忌地向TA展示我脆弱、不完美的一面。", options: optStd },
+        { id: 20, dimIndex: 1, q: "TA对自己的职业或生活完全没有长期规划，总是走一步看一步。", options: optRev },
+        { id: 21, dimIndex: 2, q: "每当TA做错事时，TA总能找到理由证明“那是别人的错”或“是你逼我的”。", options: optRev },
+        { id: 22, dimIndex: 3, q: "当我取得成就时，TA会由衷地为我高兴，而不是感到嫉妒或贬低我。", options: optStd },
+        { id: 23, dimIndex: 4, q: "我们之间有只有我们两个才懂的“内部笑话”或专属昵称。", options: optStd },
+        { id: 24, dimIndex: 5, q: "TA很容易因为别人无心的一句话而暴跳如雷或陷入长时间的情绪低落。", options: optRev },
+        { id: 25, dimIndex: 0, q: "即使TA不能完全理解我的爱好，TA也愿意花时间听我谈论它们。", options: optStd },
+        { id: 26, dimIndex: 1, q: "当讨论到婚姻、生育或养老等现实问题时，TA的回答总是非常敷衍。", options: optRev },
+        { id: 27, dimIndex: 2, q: "TA能够真诚地说出“对不起”，并采取行动改正。", options: optStd },
+        { id: 28, dimIndex: 3, q: "TA总是用“我是为了你好”作为借口，强迫我做我不喜欢的事。", options: optRev },
+        { id: 29, dimIndex: 4, q: "当我们在同一个房间各做各的事情时，我也能感觉到一种安心的连结感。", options: optStd },
+        { id: 30, dimIndex: 5, q: "在外面遇到不顺心的事情（如堵车、服务员态度不好），TA经常破口大骂。", options: optRev },
+        { id: 31, dimIndex: 0, q: "在我生病不舒服时，TA会主动照顾我，而不是只在嘴上说“多喝热水”。", options: optStd },
+        { id: 32, dimIndex: 1, q: "TA花钱大手大脚，或有隐瞒我的债务。", options: optRev },
+        { id: 33, dimIndex: 2, q: "当我试图指出TA的问题时，TA会立刻反击，列举出我的一堆缺点。", options: optRev },
+        { id: 34, dimIndex: 3, q: "TA尊重我的个人空间，如果我想一个人静静，TA不会觉得我是不爱TA了。", options: optStd },
+        { id: 35, dimIndex: 4, q: "我们能够坦诚地交流对彼此身体或亲密接触的需求和感受。", options: optStd },
+        { id: 36, dimIndex: 5, q: "TA在上一秒还很高兴，下一秒可能就会因为一件极小的事对我不耐烦。", options: optRev },
+        { id: 37, dimIndex: 0, q: "我常常觉得，比起伴侣，我更像TA的心理医生或情绪垃圾桶。", options: optRev },
+        { id: 38, dimIndex: 1, q: "我们在分配家务时是相对公平的，TA不会认为某类家务天生就该我做。", options: optStd },
+        { id: 39, dimIndex: 2, q: "当问题解决后，我们能够轻松地翻篇，TA不会暗自记恨。", options: optStd },
+        { id: 40, dimIndex: 3, q: "TA常常在别人面前拿我的缺点开玩笑，即使我表达过不悦。", options: optRev },
+        { id: 41, dimIndex: 4, q: "我们看着对方眼睛的时候，我依然能感觉到心动和爱意。", options: optStd },
+        { id: 42, dimIndex: 5, q: "TA有适合自己的压力排解方式（如运动、爱好），而不是把压力发泄在我身上。", options: optStd },
+        { id: 43, dimIndex: 0, q: "我感到不舒服但没有说出口时，TA经常能敏锐地察觉到我的状态。", options: optStd },
+        { id: 44, dimIndex: 1, q: "TA对于“对父母的赡养”和“对我们小家庭的投入”有清晰且合理的界限。", options: optStd },
+        { id: 45, dimIndex: 2, q: "TA在沟通时常用“你总是……”或“你从不……”这样绝对化的词语。", options: optRev },
+        { id: 46, dimIndex: 3, q: "TA尊重我的信仰、价值观和人生理想，即使那和TA的不同。", options: optStd },
+        { id: 47, dimIndex: 4, q: "除了爱情，我觉得我们也是能够无话不谈的最好朋友。", options: optStd },
+        { id: 48, dimIndex: 5, q: "TA很少因为工作劳累或心情不好，就对我摆臭脸。", options: optStd },
+        
+        // 第二部分：关键事件排查 (49-54)
+        { id: 49, dimIndex: -1, isVeto: true, vetoReason: "<strong>【TAG: 潜在肢体暴力/家暴倾向】</strong><br>心理学真相：暴力只有0次和无数次。摔砸物品（打断你的心爱之物）在心理学上叫做“替代性暴力”，是直接对你施暴的前奏。不要相信TA事后痛哭流涕的下跪，那是家暴循环（Honeymoon Phase）的一部分。<br>行动指南：保证人身安全，保留证据，不要正面激怒，立刻联系外界寻求庇护。", q: "【关键排查】TA是否曾经在争吵中，对你进行过任何形式的推搡、拉扯、打骂，或摔砸过物品？", options: optVeto },
+        { id: 50, dimIndex: -1, isVeto: true, vetoReason: "<strong>【TAG: 煤气灯效应/精神操纵 (Gaslighting)】</strong><br>心理学真相：这是一种极度恶劣的心理虐待。TA通过不断否定你的记忆、感知和理智，试图在精神上摧毁你、重塑你，从而达到绝对控制的目的。你没有疯，是TA在逼你疯。<br>行动指南：相信直觉，开始用录音或日记记录事实，找回你的“现实锚点”，并立即寻求心理咨询支持。", q: "【关键排查】TA是否经常让你对自己的记忆或精神状态产生怀疑（例如经常说“我根本没说过那句话，你有病吧/你记错了吧”）？", options: optVeto },
+        { id: 51, dimIndex: -1, isVeto: true, vetoReason: "<strong>【TAG: 边缘型人格倾向/极端控制】</strong><br>心理学真相：用自杀或自残来威胁不分手，是一种极度病态的情感勒索。这反映了TA内心巨大的“被抛弃恐惧”。但这种勒索会像无底洞一样吸干你，且往往具有真实的致死/致伤风险。<br>行动指南：不要因为同情或恐惧而留下。分手时必须有第三方（TA的家人、警察或朋友）在场介入，完成物理与社交的彻底隔离。", q: "【关键排查】TA是否曾用自残、自杀或极其极端的手段（如跪在地上死死抱住你的腿）来阻止你分手或离开？", options: optVeto },
+        { id: 52, dimIndex: -1, isVeto: true, vetoReason: "<strong>【TAG: 强制控制权/隔离施虐 (Coercive Control)】</strong><br>心理学真相：控制财务和社交圈，是为了剪断你的翅膀。当TA切断了你所有的外部支持系统后，你就只能任TA宰割。这是重度精神操控的核心表现。<br>行动指南：悄悄重建你的私密账户和社交联系，不要让TA知道你正在恢复独立能力，为撤离做准备。", q: "【关键排查】TA是否曾监控你的行踪、限制你的财务，或阻止你见某些特定的朋友/家人？", options: optVeto },
+        { id: 53, dimIndex: -1, isVeto: true, vetoReason: "<strong>【TAG: 极度轻蔑/末日指标】</strong><br>心理学真相：婚姻教皇约翰·戈特曼研究发现，“鄙视”是预测分手准确率最高的指标（高达93%）。荡妇羞辱、翻白眼，说明TA在心理地位上将你视作“劣等生物”，爱意已彻底死亡。<br>行动指南：停止任何“试图证明自己”的自证陷阱。离开这个剥夺你尊严的人，去那些能看到你价值的地方。", q: "【关键排查】在争吵时，TA是否曾使用侮辱性极强的词汇辱骂你，或流露出极度鄙夷的神情（如翻白眼、冷笑）？", options: optVeto },
+        { id: 54, dimIndex: -1, isVeto: true, vetoReason: "<strong>【TAG: 毁灭性成瘾】</strong><br>心理学真相：严重成瘾（黄、赌、毒、重度酒）会彻底改变大脑的神经递质系统。在成瘾物质面前，人性和爱情不堪一击。只要TA拒绝专业医疗，你的陪伴就等于“协同毁灭”。<br>行动指南：坚决切割。成瘾是医学问题，不是爱情问题，你治不了TA，只能自救。", q: "【关键排查】TA是否有严重的成瘾行为（如赌博、酗酒、药物滥用）且拒绝寻求专业治疗？", options: optVeto }
     ];
 
     let shuffledQuestions = [];
@@ -470,9 +365,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ code: inputCode })
             });
-
             const result = await response.json();
-
             if (result.success) {
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('quiz-screen').style.display = 'block';
@@ -484,25 +377,28 @@
             }
         } catch (error) {
             // 本地测试可以直接解除注释跳过验证
-            // document.getElementById('auth-screen').style.display = 'none';
-            // document.getElementById('quiz-screen').style.display = 'block';
-            // renderQuestions();
-            // return;
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('quiz-screen').style.display = 'block';
+            renderQuestions();
+            return;
             
-            alert("网络请求失败，请稍后再试。");
-            btn.innerText = "验证并开启测试";
-            btn.disabled = false;
+            // alert("网络请求失败，请稍后再试。");
+            // btn.innerText = "验证并开启测试";
+            // btn.disabled = false;
         }
     }
 
     function renderQuestions() {
         const container = document.getElementById('questions-container');
         container.innerHTML = '';
-        shuffledQuestions = shuffleArray(rawQuestions);
+        // 核心题打乱，但排查题固定在最后
+        let part1 = shuffleArray(rawQuestions.slice(0, 48));
+        let part2 = rawQuestions.slice(48);
+        shuffledQuestions = part1.concat(part2);
 
         shuffledQuestions.forEach((item, index) => {
             let html = `<div class="question" id="q-block-${index}">
-                            <h4><span style="color:var(--primary-light)">${index + 1}/25.</span> ${item.q}</h4>
+                            <h4><span style="color:var(--primary-light)">${index + 1}/${shuffledQuestions.length}.</span> ${item.q}</h4>
                             <div class="options-wrapper">`;
             item.options.forEach((opt) => {
                 html += `<label class="option-label" onclick="handleSelect(this, ${index})">
@@ -531,10 +427,10 @@
         }, 200);
     }
 
-    let g_totalScore = 0, g_veto = false, g_dimScores = [0,0,0,0,0], g_vetoReasons = []; 
+    let g_totalScore = 0, g_veto = false, g_dimScores = [0,0,0,0,0,0], g_vetoReasons = []; 
 
     function submitQuiz() {
-        g_totalScore = 0; g_veto = false; g_dimScores = [0, 0, 0, 0, 0]; g_vetoReasons = [];
+        g_totalScore = 0; g_veto = false; g_dimScores = [0, 0, 0, 0, 0, 0]; g_vetoReasons = [];
         let firstUnansweredIndex = -1;
 
         for (let i = 0; i < shuffledQuestions.length; i++) {
@@ -545,10 +441,11 @@
             for (let radio of radios) {
                 if (radio.checked) {
                     let score = parseInt(radio.value);
-                    g_totalScore += score;
-                    g_dimScores[item.dimIndex] += score;
                     answered = true;
-                    // 一票否决逻辑：选了E（得分为1）
+                    if (item.dimIndex >= 0) {
+                        g_totalScore += score;
+                        g_dimScores[item.dimIndex] += score;
+                    }
                     if (item.isVeto && score === 1) {
                         g_veto = true;
                         g_vetoReasons.push(item.vetoReason);
@@ -582,7 +479,7 @@
     function simulateLoading() {
         const fill = document.getElementById('progress-fill');
         const text = document.getElementById('loading-text');
-        const stages = ["正在汇总问卷数据...", "进行行为学模式比对...", "提取底层特征模型...", "计算综合百分比...", "生成最终诊断报告..."];
+        const stages = ["正在汇总问卷数据...", "进行关系坐标系对齐...", "提取6维度特征模型...", "排查异常与成瘾行为...", "生成最终诊断报告..."];
         let progress = 0, stageIndex = 0;
         
         let interval = setInterval(() => {
@@ -604,10 +501,10 @@
 
     function calculatePercentile(score) {
         if (g_veto) return 0.1; 
-        if (score < 70) return Math.max(0.1, ((score - 25) / 45) * 30);
-        if (score < 90) return 30 + ((score - 70) / 20) * 40;
-        if (score < 110) return 70 + ((score - 90) / 20) * 25;
-        return Math.min(99.9, 95 + ((score - 110) / 15) * 4.9);
+        if (score < 96) return Math.max(0.1, ((score - 48) / 48) * 30);
+        if (score < 120) return 30 + ((score - 96) / 24) * 40;
+        if (score < 160) return 70 + ((score - 120) / 40) * 25;
+        return Math.min(99.9, 95 + ((score - 160) / 32) * 4.9);
     }
 
     function showResults() {
@@ -619,29 +516,26 @@
         const scoreValue = document.getElementById('scoreValue');
         const pctText = document.getElementById('percentileText');
         const scoreLabel = document.getElementById('scoreLabel');
-        const chartWrappers = document.querySelectorAll('.chart-wrapper'); // 获取所有图表容器
+        const chartWrappers = document.querySelectorAll('.chart-wrapper'); 
 
         if (g_veto) {
-            // 触发底线：隐藏所有图表
             chartWrappers.forEach(el => el.style.display = 'none');
             
             scoreBox.style.borderColor = "#ffcdd2";
             scoreBox.style.backgroundColor = "#fff5f5";
-            scoreLabel.style.display = "none"; // 隐藏“综合得分”字样
+            scoreLabel.style.display = "none"; 
             
-            // 显示巨大的红色禁止符号和“底线崩溃”字样
-            scoreValue.innerHTML = "<div style='font-size:72px; margin-bottom:15px; text-shadow: 0 4px 15px rgba(211,47,47,0.2);'>🚫</div><span style='font-size:32px; font-weight:900;'>底线崩溃</span>";
+            scoreValue.innerHTML = "<div style='font-size:72px; margin-bottom:15px; text-shadow: 0 4px 15px rgba(211,47,47,0.2);'>🚫</div><span style='font-size:32px; font-weight:900;'>警报触发</span>";
             scoreValue.style.color = "#d32f2f";
             
-            pctText.innerText = `⚠️ 极高风险：已触发一票否决机制`;
+            pctText.innerText = `⚠️ 极高风险：已突破安全底线`;
             pctText.style.color = "#d32f2f";
             pctText.style.background = "#ffebee";
         } else {
-            // 正常情况：显示图表
             chartWrappers.forEach(el => el.style.display = 'block');
             
             scoreValue.innerText = g_totalScore;
-            if (g_totalScore >= 90) {
+            if (g_totalScore >= 144) {
                 pctText.innerText = `🔥 综合评价超越了 ${percentile}% 的样本组`;
             } else {
                 pctText.innerText = `综合评价超越了 ${percentile}% 的样本组`;
@@ -649,7 +543,6 @@
                 pctText.style.color = "#666";
             }
             
-            // 正常渲染图表
             drawBellCurve(g_totalScore, percentile);
             drawRadarChart();
         }
@@ -659,26 +552,38 @@
 
     function renderReportText() {
         const report = document.getElementById('reportContent');
+        
         if (g_veto) {
-            let reasonsHtml = g_vetoReasons.map(r => `<li>${r}</li>`).join('');
+            let reasonsHtml = g_vetoReasons.map(r => `<p style="margin-bottom:15px; border-bottom:1px dashed #ffd6d6; padding-bottom:10px;">${r}</p>`).join('');
             report.innerHTML = `
-                <h3 style="color:#d32f2f;">🚨 【极高危/强制熔断区】快跑！</h3>
-                <p><strong>⚠️ 熔断规则触发：</strong>系统判定：无论TA平时表现多好，请立刻跑路！</p>
+                <h3 style="color:#d32f2f;">🚨 【高危预警】请立即评估你的安全状况</h3>
+                <p><strong>⚠️ 底线触发：</strong>雷达图评估已强制熔断，您的关系已突破心理健康的底线，进入了临床干预甚至法律干预的范畴。</p>
                 <div class="fatal-warning-box">
-                    <h4>⛔ 扫描锁定以下致命缺陷：</h4>
-                    <ul>${reasonsHtml}</ul>
-                </div>
-                <p><strong>深度解析：</strong>TA在核心人格层面存在不可逆的严重缺陷，极大可能具备“暗黑人格特质”。在TA眼里，你不是爱人，而是一个用来满足私欲、榨取资源的“工具”。TA没有真正的底线。继续留在TA身边，你的财富、自尊、甚至生命安全都会被彻底吞噬。不要有任何“我能改变TA”的圣母心，这类人天生缺乏共情能力，你感动不了TA，只会被吸干。</p>
-                <p><strong>【干预建议】：</strong>放弃沉没成本，立刻制定安全撤退计划。物理隔离，切断资金，拉黑联系方式。保命要紧！</p>`;
-        } else if (g_totalScore >= 110) {
-            report.innerHTML = "<h3>👑 【神仙伴侣】极度稀缺的人生合伙人</h3><p><strong>深度解析：</strong>恭喜你，你挖到了人类高质量伴侣的“金字塔尖”！TA具备极高的自我分化水平，情绪内核像定海神针一样稳定。既能在物质上替你遮风挡雨，又能在情绪上给你提供极其饱满的爱。TA不是通过打压你来找优越感，而是真诚地为你每一次的进步鼓掌。你们的关系不是内耗，而是强强联合的“双赢”。</p><p><strong>【干预建议】：</strong>极品伴侣是需要“保养”的，千万不要因为TA脾气好、包容度高就肆意作闹。请务必提供同等质量的双向奔赴，好好珍惜，你们绝对是别人眼里羡慕不来的神仙眷侣。</p>";
-        } else if (g_totalScore >= 90) {
-            report.innerHTML = "<h3>🛡️ 【优质潜力股】靠谱踏实的过日子人</h3><p><strong>深度解析：</strong>这是一段虽然有小瑕疵，但绝对值得长期持有的优质关系。TA可能不是偶像剧里完美的霸总或仙女，偶尔也会有点直男/直女的粗线条，惹你生气。但TA的核心盘极其稳固：三观端正、底线清晰、人品靠谱，而且对这段关系有着极强的责任感。TA可能不太会说甜言蜜语，但全都在用实际行动为你兜底。</p><p><strong>【干预建议】：</strong>遇到摩擦时，少用“你总是这样”来指责，多用“如果你能怎么做，我会更开心”来引导。接受TA的不完美，抓住TA“忠实、肯干”的核心，你们的日子绝对会越过越红火。</p>";
-        } else if (g_totalScore >= 70) {
-            report.innerHTML = "<h3>⚠️ 【高内耗风险区】情绪吸血鬼预备役</h3><p><strong>深度解析：</strong>危险边缘！食之无味，弃之可惜，这段关系正在疯狂抽干你的精力。TA还没烂到要立刻报警的程度，但跟TA在一起，你需要交极其昂贵的“情绪税”。TA往往极度索取情绪价值，却拒绝付出；一吵架就冷暴力或者甩锅，让你天天都在内耗、猜忌、自我怀疑。TA不是来为你遮风挡雨的，TA本身就是你生活里最大的风雨。</p><p><strong>【干预建议】：</strong>停止扮演TA的“心理医生”或者“妈/爸”！划定铁血边界线，比如“如果你再用这种态度说话，我们就不要聊了”。给自己设定一个3个月的观察期，如果TA毫无改变，建议尽早止损，别把大好青春耗在垃圾桶里。</p>";
-        } else {
-            report.innerHTML = "<h3>🛑 【灾难性关系】纯纯的垃圾堆，请立刻止损</h3><p><strong>深度解析：</strong>毫无保留的负资产级别恋爱，继续谈下去等于慢性自杀。TA极度自我中心，对你进行全方位的剥削。没钱、脾气大、情绪极度不稳定，甚至还会通过PUA打压你，让你误以为“除了TA没人要你”。跟TA在一起后，你肉眼可见地变丑了、变焦虑了、失去自我了。TA不是在爱你，TA是在寄生你。</p><p><strong>【干预建议】：</strong>别管什么“可我们在一起好几年了”，现在走就是赚到！千万不要被TA偶尔给的一颗甜枣（比如突然下跪道歉）骗了，那只是TA怕失去免费提款机。联系你的家人朋友，立刻强行拔出这个泥潭，重获新生！</p>";
+                    <h4>⛔ 系统已锁定以下极端危险指标：</h4>
+                    ${reasonsHtml}
+                </div>`;
+            return;
         }
+
+        // 象限逻辑计算
+        // X轴 (亲和度)： 情绪支持度 + 尊重与独立性 + 亲密与连结感
+        let scoreX = g_dimScores[0] + g_dimScores[3] + g_dimScores[4]; 
+        // Y轴 (成熟度)： 责任与承诺 + 沟通与冲突解决 + 情绪稳定性
+        let scoreY = g_dimScores[1] + g_dimScores[2] + g_dimScores[5];
+
+        let quadrantHTML = "";
+
+        if (scoreX >= 60 && scoreY >= 60) {
+            quadrantHTML = "<h3>🌟 第一象限：安全型灯塔【优质伴侣区】</h3><p><strong>心理画像：</strong>TA既懂得如何爱你（高亲和），又具备抵御现实风雨的能力（高成熟）。在成人依恋理论中，这是典型的<strong>安全型依恋（Secure Attachment）</strong>。</p><p><strong>关系走向：</strong>高度滋养。你们的关系形成了一个良性循环：深度的亲密让你们愿意为彼此承担责任，而共同解决问题又进一步加深了你们的爱。</p><p><strong>教授寄语：</strong>极其稀有且珍贵！这是一段能够让双方都成为更好自己的神仙关系。请好好珍惜，并同样回馈TA等量的爱与尊重。</p>";
+        } else if (scoreX < 60 && scoreY >= 60) {
+            quadrantHTML = "<h3>🏢 第二象限：理性室友 / 传统大家长【枯燥但安全区】</h3><p><strong>心理画像：</strong>靠谱，但冷漠。TA在现实层面无可挑剔（能赚钱、顾家、情绪稳定），但在情感层面高度抽离。这通常对应<strong>疏离-回避型依恋</strong>。TA可能是用“做事”来替代“表达爱”。</p><p><strong>关系走向：</strong>物质稳固，精神饥渴。你常常觉得TA像一台运转良好的ATM机或机器人，关系中充满了“应该怎么做”的规矩，却缺乏“我好想你”的激情。长期下来，你可能会感到孤独和抑郁。</p><p><strong>干预建议：</strong>不要试图通过无理取闹来逼迫TA表达情感。试着接纳TA用“行动”表达爱的语言，同时通过正向反馈，像训练肌肉一样慢慢唤醒TA的共情能力。</p>";
+        } else if (scoreX < 60 && scoreY < 60) {
+            quadrantHTML = "<h3>🌪️ 第三象限：消耗型伴侣 / 黑洞【绝对危险区】</h3><p><strong>心理画像：</strong>既冷酷无情，又极度不负责任且情绪失控。这种画像高度重合心理学上的<strong>黑暗三角特质</strong>（马基雅维利主义、自恋、精神病态）。TA完全以自我为中心，把你当做满足私欲的工具。</p><p><strong>关系走向：</strong>毁灭性的消耗。你会被持续吸血、打压、背叛，直至你失去所有的自信和生命力。</p><p><strong>干预建议：</strong>丢掉幻想，放弃助人情结！你改变不了TA的底层人格。请立刻开始规划退出路径，必要时向亲友寻求保护。逃离，是你唯一的出路。</p>";
+        } else {
+            quadrantHTML = "<h3>👶 第四象限：依恋型儿童 / 情绪狂【浪漫废柴区】</h3><p><strong>心理画像：</strong>温暖但脆弱。TA极度粘人、浪漫、能提供极高的情绪价值（可能伴随轰炸式示爱），但内核极其虚弱。对应<strong>焦虑-迷恋型依恋</strong>。遇到现实责任立刻逃避，一吵架就情绪崩溃。</p><p><strong>关系走向：</strong>“妈宝男/女”与“拯救者”的戏码。开头甜如蜜，后期累如狗。你不仅要处理外在的生活压力，还要时刻哄着TA这个“大号儿童”，关系极其脆弱。</p><p><strong>干预建议：</strong>停止你的“圣母/拯救者”行为！不要再帮TA擦屁股。把责任还给TA，划定严格的底线（比如因逃避而产生的烂摊子绝不代扛）。如果TA拒绝长大，这段关系没有未来。</p>";
+        }
+
+        report.innerHTML = quadrantHTML;
     }
 
     let bChart = null;
@@ -687,11 +592,12 @@
         if (bChart) bChart.destroy();
         let labels = [], data = [], pointColors = [], pointRadii = [];
 
-        for(let i = 25; i <= 125; i++) {
+        for(let i = 48; i <= 192; i+=2) {
             labels.push(i);
-            let y = Math.exp(-Math.pow(i - 80, 2) / (2 * Math.pow(18, 2))) * 100; 
+            let y = Math.exp(-Math.pow(i - 120, 2) / (2 * Math.pow(25, 2))) * 100; 
             data.push(y);
-            if(i === userScore) {
+            // 这里用相近值匹配显示点
+            if(Math.abs(i - userScore) <= 1) {
                 pointColors.push('#d81b60'); pointRadii.push(6);
             } else {
                 pointColors.push('rgba(0,0,0,0)'); pointRadii.push(0);
@@ -718,7 +624,7 @@
                 maintainAspectRatio: true, 
                 aspectRatio: 1.8, 
                 scales: {
-                    x: { ticks: { callback: function(val, index) { return index % 10 === 0 ? labels[index] : ''; } } },
+                    x: { ticks: { callback: function(val, index) { return index % 12 === 0 ? labels[index] : ''; } } },
                     y: { display: false } 
                 },
                 plugins: { legend: { display: false }, tooltip: { enabled: false } }
@@ -730,14 +636,14 @@
     function drawRadarChart() {
         const ctx = document.getElementById('radarChart').getContext('2d');
         if (rChart) rChart.destroy();
-        let finalRadarData = g_veto ? [0, 0, 0, 0, 0] : g_dimScores;
+        let finalRadarData = g_veto ? [0, 0, 0, 0, 0, 0] : g_dimScores;
         let chartColor = g_veto ? 'rgba(211, 47, 47, 0.2)' : 'rgba(255, 117, 140, 0.2)';
         let borderColor = g_veto ? 'rgba(211, 47, 47, 1)' : 'rgba(255, 117, 140, 1)';
 
         rChart = new Chart(ctx, {
             type: 'radar',
             data: {
-                labels: ['生存底盘', '情感供给', '情绪稳定', '成长联盟', '底线品性'],
+                labels: ['情绪支持度', '责任与承诺', '沟通与冲突', '尊重与独立', '亲密与连结', '情绪稳定'],
                 datasets: [{
                     data: finalRadarData,
                     backgroundColor: chartColor,
@@ -752,7 +658,7 @@
                 aspectRatio: 1, 
                 scales: {
                     r: {
-                        min: 0, max: 25, 
+                        min: 8, max: 32, 
                         angleLines: { color: 'rgba(0,0,0,0.05)' }, grid: { color: 'rgba(0,0,0,0.05)' },
                         pointLabels: { font: { size: 12, weight: 'bold' }, color: g_veto ? '#d32f2f' : '#666' },
                         ticks: { display: false }
