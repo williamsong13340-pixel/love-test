@@ -1,5 +1,5 @@
 // api/verify.js
-// Vercel Serverless Function - 安全升级版（HMAC-SHA256 签名 + Upstash 3次核销 + Fail-Safe 容错）
+// Vercel Serverless Function - 安全升级版（HMAC-SHA256 签名 + 首次激活起算30天 + 3次额度核销 + Fail-Safe 容错）
 
 import crypto from 'crypto';
 
@@ -75,7 +75,9 @@ const rawQuestions = [
 ];
 
 const SECRET_KEY = process.env.SECRET_KEY || 'LoveTest_Default_HMAC_Secret_2026#Key!';
-const MAX_USAGE = 3; 
+const MAX_USAGE = 3; // 每个验证码最多测试 3 次
+const VALID_DURATION_DAYS = 30; // 首次激活后有效天数
+const VALID_DURATION_MS = VALID_DURATION_DAYS * 24 * 60 * 60 * 1000; // 30天的毫秒数
 
 // 辅助计算 3 位 36进制 HMAC-SHA256 校验和
 export function calculateChecksum(baseStr, secretKey = SECRET_KEY) {
@@ -94,45 +96,80 @@ export function calculateChecksum(baseStr, secretKey = SECRET_KEY) {
     return c1 + c2 + c3;
 }
 
-// 辅助向 Upstash Redis REST API 进行极速 HTTP 请求（带 1.5s 容错超时）
-async function checkAndIncrementRedisUsage(cleanCode) {
+// 首次激活 + 次数核销逻辑（带 1.5s 超时容错保护）
+async function checkActivationAndUsage(cleanCode) {
     const redisUrl = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
     const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
 
+    // 未配置 Redis 时启动 Fail-Safe 容错保护（自动放行）
     if (!redisUrl || !redisToken) {
-        return { allowed: true, currentUsage: 1, isFallback: true };
+        return { status: 'OK', currentUsage: 1, isFallback: true };
     }
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 1500);
 
     try {
-        const key = `code:usage:${cleanCode}`;
-        const response = await fetch(`${redisUrl}/pipeline`, {
-            method: 'POST',
-            headers: {
-                Authorization: `Bearer ${redisToken}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify([
-                ["INCR", key],
-                ["EXPIRE", key, 2592000]
-            ]),
+        const key = `code:activation:${cleanCode}`;
+        
+        // 先获取已有的激活档案
+        const getRes = await fetch(`${redisUrl}/get/${key}`, {
+            headers: { Authorization: `Bearer ${redisToken}` },
             signal: controller.signal
         });
-        clearTimeout(timeoutId);
+        const getData = await getRes.json();
+        
+        const now = Date.now();
+        let record = null;
 
-        const data = await response.json();
-        const count = data && data[0] && typeof data[0].result === 'number' ? data[0].result : 1;
-
-        if (count > MAX_USAGE) {
-            return { allowed: false, currentUsage: count, isFallback: false };
+        if (getData && getData.result) {
+            try { record = JSON.parse(getData.result); } catch (e) {}
         }
-        return { allowed: true, currentUsage: count, isFallback: false };
+
+        if (!record) {
+            // ----- 首次激活流程 -----
+            record = {
+                usageCount: 1,
+                firstActivatedAt: now
+            };
+            
+            // 写入 Redis 并设置 30 天自动过期物理清理 (2592000 秒)
+            await fetch(`${redisUrl}/set/${key}/${encodeURIComponent(JSON.stringify(record))}/EX/2592000`, {
+                headers: { Authorization: `Bearer ${redisToken}` },
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+            return { status: 'OK', currentUsage: 1, isFirstActivation: true, isFallback: false };
+        } else {
+            // ----- 已激活后续使用流程 -----
+            // 1. 检查自首次激活起是否已过 30 天
+            const elapsedMs = now - record.firstActivatedAt;
+            if (elapsedMs > VALID_DURATION_MS) {
+                clearTimeout(timeoutId);
+                return { status: 'EXPIRED', isFallback: false };
+            }
+
+            // 2. 检查 3 次使用额度
+            if (record.usageCount >= MAX_USAGE) {
+                clearTimeout(timeoutId);
+                return { status: 'LIMIT_EXCEEDED', isFallback: false };
+            }
+
+            // 次数 +1 并更新 Redis
+            record.usageCount += 1;
+            const remainingTtlSeconds = Math.max(1, Math.floor((VALID_DURATION_MS - elapsedMs) / 1000));
+            
+            await fetch(`${redisUrl}/set/${key}/${encodeURIComponent(JSON.stringify(record))}/EX/${remainingTtlSeconds}`, {
+                headers: { Authorization: `Bearer ${redisToken}` },
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+            return { status: 'OK', currentUsage: record.usageCount, isFirstActivation: false, isFallback: false };
+        }
     } catch (err) {
         clearTimeout(timeoutId);
         console.warn("⚠️ Upstash Redis 触发容错保护 (Fail-Safe 降级放行):", err.message);
-        return { allowed: true, currentUsage: 1, isFallback: true };
+        return { status: 'OK', currentUsage: 1, isFallback: true };
     }
 }
 
@@ -153,7 +190,7 @@ export default async function handler(req, res) {
 
     const cleanCode = String(code).trim().toUpperCase();
     
-    // 快捷开发者调试通道
+    // 开发者快捷调试通道
     if (cleanCode === 'DEBUG' || cleanCode === 'DEVELOPER' || cleanCode === 'DEV-DEBUG') {
         return res.status(200).json({ 
             success: true, 
@@ -162,17 +199,17 @@ export default async function handler(req, res) {
         });
     }
 
-    // 格式校验：包含 CCK- 前缀，总长固定为 16 位 (CCK-4位时间戳-4位随机3位签名)
+    // 格式校验：必须为 16 位 (CCK-4位时间戳-4位随机3位签名)
     if (!cleanCode.startsWith('CCK-') || cleanCode.length !== 16) {
         return res.status(401).json({ success: false, message: '❌ 测试码格式不正确，请输入形如 CCK-XXXX-XXXXXXX 的 16 位专属码。' });
     }
 
     const bodyStr = cleanCode.replace('CCK-', '').replace(/-/g, ''); 
     const timeStr = bodyStr.substring(0, 4);
-    const randStr = bodyStr.substring(4, 8); // 4 位随机
-    const providedChecksum = bodyStr.substring(8, 11); // 3 位签名
+    const randStr = bodyStr.substring(4, 8);
+    const providedChecksum = bodyStr.substring(8, 11);
 
-    // 1. HMAC 签名防伪防爆破校验
+    // 1. HMAC 签名防伪防爆破校验（即使发码放了半年，签名依然永远有效）
     const baseStr = timeStr + randStr;
     const expectedChecksum = calculateChecksum(baseStr, SECRET_KEY);
 
@@ -180,39 +217,36 @@ export default async function handler(req, res) {
         return res.status(401).json({ success: false, message: '❌ 无效的测试码（防伪签名校验失败，请核对是否输错）。' });
     }
 
-    // 2. 时间戳与 30 天有效期校验
-    const codeHours = parseInt(timeStr, 36); 
-    const currentHours = Math.floor(Date.now() / (1000 * 60 * 60)); 
-    const hoursDiff = currentHours - codeHours; 
+    // 2. 首次使用激活起算 30 天 + 3 次测试额度核销
+    const activationResult = await checkActivationAndUsage(cleanCode);
 
-    if (hoursDiff > 720) { // 720 小时 = 30 天
-        return res.status(401).json({ 
-            success: false, 
-            message: `⚠️ 该测试码已逾期失效（已超过 30 天有效期）。` 
+    if (activationResult.status === 'EXPIRED') {
+        return res.status(401).json({
+            success: false,
+            message: `⚠️ 该测试码自首次激活之日起已超过 30 天，已自然失效。`
         });
     }
-    
-    if (hoursDiff < -1) { 
-        return res.status(401).json({ success: false, message: '❌ 测试码生成时间异常，请联系管理员。' });
-    }
 
-    // 3. Upstash Redis 次数核销与限制检查
-    const redisResult = await checkAndIncrementRedisUsage(cleanCode);
-
-    if (!redisResult.allowed) {
+    if (activationResult.status === 'LIMIT_EXCEEDED') {
         return res.status(401).json({
             success: false,
             message: `❌ 该测试码的 3 次测试额度已全部用尽，无法再次开启测试。`
         });
     }
 
-    const remaining = MAX_USAGE - redisResult.currentUsage;
+    const remaining = MAX_USAGE - activationResult.currentUsage;
     let usageMsg = `验证成功！`;
-    if (!redisResult.isFallback) {
-        usageMsg += remaining > 0 ? ` 该测试码还可使用 ${remaining} 次。` : ` 这是该测试码最后 1 次测试额度。`;
+    if (activationResult.isFallback) {
+        usageMsg += ` 测试码已成功激活（自今日起 30 天内有效），还可测试 2 次。`;
+    } else {
+        if (activationResult.isFirstActivation) {
+            usageMsg += ` 测试码已成功激活（自今日起 30 天内有效），还可测试 ${remaining} 次。`;
+        } else {
+            usageMsg += remaining > 0 ? ` 该测试码还可使用 ${remaining} 次。` : ` 这是该测试码最后 1 次测试额度。`;
+        }
     }
 
-    // 全部通过！安全下发 54 道加密问卷数据
+    // 全部通过！安全下发 54 道问卷数据
     res.status(200).json({ 
         success: true, 
         message: usageMsg, 
