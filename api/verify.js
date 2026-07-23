@@ -189,15 +189,6 @@ export default async function handler(req, res) {
     }
 
     const cleanCode = String(code).trim().toUpperCase();
-    
-    // 开发者快捷调试通道
-    if (cleanCode === 'DEBUG' || cleanCode === 'DEVELOPER' || cleanCode === 'DEV-DEBUG') {
-        return res.status(200).json({ 
-            success: true, 
-            message: '开发调试验证成功（剩余测试次数：无限）', 
-            questions: rawQuestions 
-        });
-    }
 
     // 格式校验：必须为 16 位 (CCK-4位时间戳-4位随机3位签名)
     if (!cleanCode.startsWith('CCK-') || cleanCode.length !== 16) {
