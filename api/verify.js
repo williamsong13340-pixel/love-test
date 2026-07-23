@@ -1,3 +1,8 @@
+// api/verify.js
+// Vercel Serverless Function - 安全升级版（HMAC-SHA256 签名 + Upstash 3次核销 + Fail-Safe 容错）
+
+import crypto from 'crypto';
+
 const optStd = [
     { text: "完全符合", score: 4 }, { text: "比较符合", score: 3 }, 
     { text: "比较不符合", score: 2 }, { text: "完全不符合", score: 1 }
@@ -10,7 +15,7 @@ const optVeto = [
     { text: "是", score: 1 }, { text: "否", score: 4 }
 ];
 
-// 0:情绪支持度, 1:责任与承诺, 2:沟通与冲突, 3:尊重与独立, 4:亲密与连结, 5:情绪稳定
+// 54道完整题库
 const rawQuestions = [
     { id: 1, dimIndex: 0, q: "当我分享一件开心的小事时，TA会放下手机看着我回应。", options: optStd },
     { id: 2, dimIndex: 1, q: "答应过我的日常小事（如买个东西、倒垃圾），TA经常忘记或推脱。", options: optRev },
@@ -69,73 +74,148 @@ const rawQuestions = [
     { id: 54, dimIndex: -1, isVeto: true, vetoReason: "<strong style='color:#d32f2f;'>TA存在严重且拒绝治疗的毁灭性成瘾行为：</strong><br>心理学真相：严重成瘾会彻底改变大脑系统。只要TA拒绝专业医疗，你的陪伴就等于“协同毁灭”。<br>行动指南：坚决切割。成瘾是医学问题，你治不了TA，只能自救。", q: "【关键排查】TA是否有严重的成瘾行为（如赌博、酗酒、药物滥用）且拒绝寻求专业治疗？", options: optVeto }
 ];
 
-export default function handler(req, res) {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ message: '不允许' });
+const SECRET_KEY = process.env.SECRET_KEY || 'LoveTest_Default_HMAC_Secret_2026#Key!';
+const MAX_USAGE = 3; 
+
+// 辅助计算 3 位 36进制 HMAC-SHA256 校验和
+export function calculateChecksum(baseStr, secretKey = SECRET_KEY) {
+    const hmac = crypto.createHmac('sha256', secretKey);
+    hmac.update(baseStr);
+    const hexHash = hmac.digest('hex');
+    
+    const num = parseInt(hexHash.substring(0, 8), 16);
+    const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const mod = num % (36 * 36 * 36);
+    
+    const c1 = chars[Math.floor(mod / (36 * 36))];
+    const c2 = chars[Math.floor((mod % (36 * 36)) / 36)];
+    const c3 = chars[mod % 36];
+    
+    return c1 + c2 + c3;
+}
+
+// 辅助向 Upstash Redis REST API 进行极速 HTTP 请求（带 1.5s 容错超时）
+async function checkAndIncrementRedisUsage(cleanCode) {
+    const redisUrl = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
+    const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
+
+    if (!redisUrl || !redisToken) {
+        return { allowed: true, currentUsage: 1, isFallback: true };
     }
 
-    // 防御性处理：防止由于请求包异常(无 body 等情况)导致解析代码崩溃引发 500
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 1500);
+
+    try {
+        const key = `code:usage:${cleanCode}`;
+        const response = await fetch(`${redisUrl}/pipeline`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${redisToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify([
+                ["INCR", key],
+                ["EXPIRE", key, 2592000]
+            ]),
+            signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        const data = await response.json();
+        const count = data && data[0] && typeof data[0].result === 'number' ? data[0].result : 1;
+
+        if (count > MAX_USAGE) {
+            return { allowed: false, currentUsage: count, isFallback: false };
+        }
+        return { allowed: true, currentUsage: count, isFallback: false };
+    } catch (err) {
+        clearTimeout(timeoutId);
+        console.warn("⚠️ Upstash Redis 触发容错保护 (Fail-Safe 降级放行):", err.message);
+        return { allowed: true, currentUsage: 1, isFallback: true };
+    }
+}
+
+export default async function handler(req, res) {
+    if (req.method !== 'POST') {
+        return res.status(405).json({ message: '不允许的请求方法' });
+    }
+
     if (!req.body || typeof req.body.code === 'undefined') {
         return res.status(400).json({ success: false, message: '请求参数缺失！' });
     }
 
     const { code } = req.body;
     
-    // 错误类型 1：没填密码
     if (!code) {
         return res.status(401).json({ success: false, message: '请输入测试码！' });
     }
 
-    // 防御性：确保即使前端传来的包含空格也能处理，并强制转大写兼容
     const cleanCode = String(code).trim().toUpperCase();
     
-    // 支持本地开发者调试验证码（如果部署在云端也希望支持快捷DEBUG）
+    // 快捷开发者调试通道
     if (cleanCode === 'DEBUG' || cleanCode === 'DEVELOPER' || cleanCode === 'DEV-DEBUG') {
-        return res.status(200).json({ success: true, message: '开发调试验证成功', questions: rawQuestions });
+        return res.status(200).json({ 
+            success: true, 
+            message: '开发调试验证成功（剩余测试次数：无限）', 
+            questions: rawQuestions 
+        });
     }
 
-    // 错误类型 2：格式不对（比如少复制了一位，或者前缀不是 CCK-）
-    if (!cleanCode.startsWith('CCK-') || cleanCode.length !== 12) {
-        return res.status(401).json({ success: false, message: '❌ 测试码格式不正确，请检查是否多输了空格或少漏了字母。' });
+    // 格式校验：包含 CCK- 前缀，总长固定为 16 位 (CCK-4位时间戳-4位随机3位签名)
+    if (!cleanCode.startsWith('CCK-') || cleanCode.length !== 16) {
+        return res.status(401).json({ success: false, message: '❌ 测试码格式不正确，请输入形如 CCK-XXXX-XXXXXXX 的 16 位专属码。' });
     }
 
-    const body = cleanCode.replace('CCK-', ''); 
-    const timeStr = body.substring(0, 4);
-    const randStr = body.substring(4, 7);
-    const checksum = body.substring(7, 8);
+    const bodyStr = cleanCode.replace('CCK-', '').replace(/-/g, ''); 
+    const timeStr = bodyStr.substring(0, 4);
+    const randStr = bodyStr.substring(4, 8); // 4 位随机
+    const providedChecksum = bodyStr.substring(8, 11); // 3 位签名
 
-    // 计算防伪码
+    // 1. HMAC 签名防伪防爆破校验
     const baseStr = timeStr + randStr;
-    let sum = 0;
-    for(let i = 0; i < 7; i++) {
-        sum += baseStr.charCodeAt(i) * (i + 1);
-    }
-    const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    const expectedChecksum = chars[sum % 36];
+    const expectedChecksum = calculateChecksum(baseStr, SECRET_KEY);
 
-    // 错误类型 3：密码输错了（暗号校验对不上，防止买家瞎蒙）
-    if (checksum !== expectedChecksum) {
-        return res.status(401).json({ success: false, message: '❌ 无效的测试码（防伪校验失败，请仔细核对是否输错字母或数字）' });
+    if (providedChecksum !== expectedChecksum) {
+        return res.status(401).json({ success: false, message: '❌ 无效的测试码（防伪签名校验失败，请核对是否输错）。' });
     }
 
-    // 时间解密与验证
+    // 2. 时间戳与 30 天有效期校验
     const codeHours = parseInt(timeStr, 36); 
     const currentHours = Math.floor(Date.now() / (1000 * 60 * 60)); 
     const hoursDiff = currentHours - codeHours; 
 
-    // 错误类型 4：密码已过期
-    if (hoursDiff > 720) {
+    if (hoursDiff > 720) { // 720 小时 = 30 天
         return res.status(401).json({ 
             success: false, 
-            message: `⚠️ 该测试码已失效（距生成已超过 30 天，系统已在云端自动将其销毁）。` 
+            message: `⚠️ 该测试码已逾期失效（已超过 30 天有效期）。` 
         });
     }
     
-    // 错误类型 5：时空异常（基本不可能发生，除非服务器时间乱了）
-    if (hoursDiff < 0) {
-        return res.status(401).json({ success: false, message: '❌ 测试码时空异常，请联系管理员。' });
+    if (hoursDiff < -1) { 
+        return res.status(401).json({ success: false, message: '❌ 测试码生成时间异常，请联系管理员。' });
     }
 
-    // 全部通过！下发经过混淆和安全校验的完整题库数据
-    res.status(200).json({ success: true, message: '验证成功', questions: rawQuestions });
+    // 3. Upstash Redis 次数核销与限制检查
+    const redisResult = await checkAndIncrementRedisUsage(cleanCode);
+
+    if (!redisResult.allowed) {
+        return res.status(401).json({
+            success: false,
+            message: `❌ 该测试码的 3 次测试额度已全部用尽，无法再次开启测试。`
+        });
+    }
+
+    const remaining = MAX_USAGE - redisResult.currentUsage;
+    let usageMsg = `验证成功！`;
+    if (!redisResult.isFallback) {
+        usageMsg += remaining > 0 ? ` 该测试码还可使用 ${remaining} 次。` : ` 这是该测试码最后 1 次测试额度。`;
+    }
+
+    // 全部通过！安全下发 54 道加密问卷数据
+    res.status(200).json({ 
+        success: true, 
+        message: usageMsg, 
+        questions: rawQuestions 
+    });
 }
